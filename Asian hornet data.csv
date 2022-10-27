@@ -1,6 +1,4 @@
 Date;Time;NestID;BaitID;ColorInd;Observer;Distance;DirectionToNest;Flightdirection;FlightError;Flighttime;Speed(m/min);Cloudcoverage;Rain;Windspeed;Winddirection;Temperature;;
-REGEL;;;;;;0;;;;0:00:00;;;;;;;;
-REGEL;;;;;;1000;;;;10:00:00;;;;;;;;
 31/08/2022;11:19;4;1;Blue;Researcher;272;22;40;18;4:20:00;62,77;80%;0;2,3;60;20,0;eerste vlucht na merken -> langer;
 31/08/2022;11:23;4;1;Blue;Researcher;272;22;40;18;2:50:00;96,00;80%;0;2,3;40;20,0;;
 31/08/2022;11:30;4;1;Blue;Researcher;272;22;20;2;2:17:00;119,12;80%;0;2,3;40;20,0;;
