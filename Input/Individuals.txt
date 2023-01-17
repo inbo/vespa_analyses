@@ -1,0 +1,122 @@
+NestID	BaitID	ColorInd	Weight_jar_ind	Weight_jar	Weight_ind	
+1	20	Orange	31.45	31.04	0.41	
+1	20	Blue	31.48	31.03	0.45	
+1	21	Unmarked				
+1	21	Pink	31.34	30.99	0.35	
+1	21	Red	31.36	30.97	0.39	
+1	21	Green				
+3	2	Pink	31.30	30.90	0.40	
+3	2	Green	31.31	30.95	0.36	
+4	1	Blue	67.14	66.78	0.36	
+6	1	Zender	10.816	10.5	0.32	
+10	2	Green				
+10	1	Blue				
+10	3	Unmarked				
+10	4	Unmarked				
+10	5	Unmarked				
+10	6	Unmarked				
+10	7	Unmarked				
+10	8	Unmarked				
+11	1	White				
+12	1	Blue				
+13	1	White				
+13	2	Red				
+13	3	Blue				
+14	1	Red/Yellow/Red				
+14	1	Blue				
+14	2	Yellow				
+14	3	Red/White				
+14	3	Yellow/White				
+14	4	White/Red				
+15	1	Green				
+16	7	Blue	31.47	31.27333333	0.20	
+16	7	Unmarked				
+16	8	Yellow				
+16	10	Yellow				
+16	11	Unmarked				
+16	2	Unmarked				
+16	11	Orange	31.45	31.17666667	0.27	same individuals are flying on bait 6 so I added them twice in this dataset
+16	11	Blue	31.47666667	31.21	0.27	same individuals are flying on bait 6 so I added them twice in this dataset
+16	6	Orange	31.45	31.17666667	0.27	
+16	6	Blue	31.47666667	31.21	0.27	
+17	1	White				
+17	2	Red				
+18	1	A				
+18	1	Blue				
+18	1	FluoPink				
+18	1	Yellow				
+18	1	Green				
+18	2	Orange				
+18	3	Red				
+18	4	Yellow				
+18	1	Unmarked				
+19	13	Blue				
+19	13	Pink	31.41	31.07666667	0.33	
+20	1	A				
+20	2	Blue				
+21	Mais	Blue/Red	10.8025	10.42	0.38	
+21	Mais	Green				
+21	Koeien	Yellow/Blue				
+21	Koeien	Yellow/Red				
+21	Koeien	Yellow/Pink	31.32333333	31.05	0.27	
+21	Miserie	Green/White				
+21	Allure	Yellow	31.482	31.1425	0.34	zelfde? Als Pluimpje of gezenderde individu?
+21	Paradijskouter1	Yellow				
+21	Paradijskouter1	Red/White				
+21	Paradijskouter1	Red/Red				
+21	Paradijskouter2	Yellow	11.03	10.68	0.35	
+21	Kruisstraat1	Blue				
+21	Kruisstraat2	Pink	31.4	31.07666667	0.32	
+21	Grasmaaier	Green				
+21	Klaphof	A				
+21	Klaphof	B				
+22	11	Yellow	31.62333333	31.21666667	0.41	
+22	11	Green	31.89333333	31.41333333	0.48	first flight 60°
+22	11	Unmarked				
+23	1	Red				
+23	2	Green				
+23	3	Green				
+24	1	Blue				
+24	2	Blue				
+24	3	Blue				
+26	1	Blue				
+27	1	Green				
+28	Asterdreef	Blue	31.71666667	31.35666667	0.36	
+29	1	A				
+29	1	B				
+30	1	R				
+30	2	S				
+30	3	T				
+30	4	U				
+30	5	V				
+30	6	W				
+30	7	X				
+31	Koeien	Yellow-Green				
+31	Koeien	Yellow-Orange	31.49333333	31.20333333	0.29	
+31	Paradijskouter1	Red-Blue				
+32	SintJobsstraat	Blue				
+32	Hondenweide	Pink				
+33	Hof Ter Mere	Blue	31.83666667	31.45333333	0.38	
+33	Hof Ter Mere	Pink	31.85666667	31.41666667	0.44	
+33	Hof Ter Mere	Yellow	31.86333333	31.42666667	0.44	
+34	1	A				
+34	2	B				
+34	3	C				
+35	1	Blue				
+35	2	A				
+36	1	Yellow				
+36	2	Blue				
+37	1	Red				
+37	1	Blue				
+37	2	Green				
+38	Apotheek	Blue				
+38	Azaleapark	Blue				
+38	Azaleapark	Pink				
+38	Azaleapark	Unmarked				
+39	Apotheek	Red				
+40	Goorstraat	White				
+40	Venstraat_tuin	Blue				
+40	Venstraat_doodlopend					
+40	ImkerBart	Unmarked				
+41	Apotheek	Blue				
+41	Werchtersebaan	Blue				
