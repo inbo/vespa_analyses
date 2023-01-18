@@ -3,8 +3,8 @@ title: "Masterthesis script"
 author: "Heleen Van Ransbeeck"
 date: '2023-01-03'
 output:
-  word_document: default
   html_document: default
+  word_document: default
 ---
 # Data inladen
 ```{r}
