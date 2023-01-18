@@ -69,6 +69,7 @@ Was op 2km afstand en in Melle zijn toch redelijk wat nesten gevonden. Kans dat 
 Als de website van Vespawatch in orde is kan ik kijken of er eventueel een nest in de buurt is gevonden.
 
 ```{r}
+library(dplyr)
 Flights2_incomplete<-Flights_incomplete %>%  filter(NestID!=1)
 Shortind2_incomplete<-Shortind_incomplete %>%  filter(NestID!=1)
 Shortpot2_incomplete<-Shortpot_incomplete %>%  filter(NestID!=1)
@@ -78,7 +79,7 @@ Shortpot2_incomplete<-Shortpot_incomplete %>%  filter(NestID!=1)
 
 # Data exploratie
 
-## Flight time vs distance
+## 1) Flight time vs distance
 
 ### Graphs 
 
@@ -89,23 +90,23 @@ Grafieken met en zonder outliers telkens voor de volgende datasets
 
 Oranje lijn stelt de theoretische regel "1min vliegtijd is 100m tot het nest" voor.
  
-```{r}
+```{r echo=FALSE, warning=FALSE}
 library(ggplot2)
 library(ggpubr)
 
-plot1<-ggplot(Flights_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan") +  ggtitle("All data | outliers incl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot1<-ggplot(Flights_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan") +  ggtitle("All data | outliers incl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
 
-plot2<-ggplot(Flights2_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan")+  ggtitle("All data| outliers excl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot2<-ggplot(Flights2_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan")+  ggtitle("All data| outliers excl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot3<-ggplot(Shortind_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9)  + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan") +  ggtitle("Shortest per ind. | outliers incl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot3<-ggplot(Shortind_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9)  + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan") +  ggtitle("Shortest per ind. | outliers incl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
 
-plot4<-ggplot(Shortind2_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9)  + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan") +  ggtitle("Shortest per ind. | outliers excl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot4<-ggplot(Shortind2_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9)  + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan") +  ggtitle("Shortest per ind. | outliers excl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot5<-ggplot(Shortpot_incomplete, aes(x=Distance, y=Flighttime_min))  + geom_point(color="aquamarine3",size=0.9)  + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan") + ggtitle("Shortest per jar | outliers incl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot5<-ggplot(Shortpot_incomplete, aes(x=Distance, y=Flighttime_min))  + geom_point(color="aquamarine3",size=0.9)  + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan") + ggtitle("Shortest per jar | outliers incl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot6<-ggplot(Shortpot2_incomplete, aes(x=Distance, y=Flighttime_min))  + geom_point(color="aquamarine3", size=0.9)  + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan") +  ggtitle("Shortest per jar | outliers excl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot6<-ggplot(Shortpot2_incomplete, aes(x=Distance, y=Flighttime_min))  + geom_point(color="aquamarine3", size=0.9)  + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkcyan") +  ggtitle("Shortest per jar | outliers excl")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
 ggarrange(plot1, plot3, plot5, plot2, plot4, plot6 + rremove("x.text"), 
           labels = c("A", "B", "C", "D", "E", "F"),
@@ -116,7 +117,7 @@ De datapunten uit Melle hebben duidelijk een groot effect op de regressielijn. Z
 
 ### Model Output
 
-*Alle data*
+**All data**
 ```{r}
 # outliers incl
 model_dist_all<-lm(Flighttime_min ~ Distance, na.action=na.exclude, data=Flights_incomplete)
@@ -142,9 +143,9 @@ summary(mixedobserver)
 anova(mixedobserver, ddf="Satterthwaite", type=3)
 ```
 
-Variatie tussen de waarnemers bleek niet groot te zijn (0)
+Variatie tussen de waarnemers bleek niet groot te zijn (0).
 
-*Shortest per individual*
+**Shortest per individual**
 ```{r}
 # outliers incl
 model_dist_ind<-lm(Flighttime_min ~ Distance, na.action=na.exclude, data=Shortind_incomplete)
@@ -157,7 +158,7 @@ summary(model_dist_ind2)
 
 Beide hoogsignificant
 
-*Shortest per jar*
+**Shortest per jar**
 ```{r}
 # outliers incl
 model_dist_pot<-lm(Flighttime_min ~ Distance, na.action=na.exclude, data=Shortpot_incomplete)
@@ -171,7 +172,8 @@ summary(model_dist_pot2)
 Beide hoogsignificant
 
 
-## Speed vs Temperature
+
+## 2) Speed vs Temperature
 
 ### Graphs 
 
@@ -180,34 +182,35 @@ Grafieken met outliers telkens voor de volgende datasets
  - enkel kortste vliegtijden per individu
  - enkel kortste vliegtijden per wiekpot
  
-```{r}
-plot7<-ggplot(Flights_incomplete, aes(x=Temperature, y=Speed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+```{r echo=FALSE, warning=FALSE}
+plot7<-ggplot(Flights_incomplete, aes(x=Temperature, y=Speed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot8<-ggplot(Shortind_incomplete, aes(x=Temperature, y=Speed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
+plot8<-ggplot(Shortind_incomplete, aes(x=Temperature, y=Speed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot9<-ggplot(Shortpot_incomplete, aes(x=Temperature, y=Speed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot9<-ggplot(Shortpot_incomplete, aes(x=Temperature, y=Speed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x,  se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
 ggarrange(plot7, plot8, plot9 + rremove("x.text"), 
           labels = c("A", "B", "C"),
           ncol = 2, nrow = 2)
 ```
+
 ### Model Output
 
-*All data*
+**All data**
 ```{r}
 model_temp_all<-lm(Speed ~ Temperature, na.action=na.exclude, data=Flights_incomplete)
 summary(model_temp_all)
 ```
 Hoogsignificant
 
-*Shortest per individual*
+**Shortest per individual**
 ```{r}
 model_temp_ind<-lm(Speed ~ Temperature, na.action=na.exclude, data=Shortind_incomplete)
 summary(model_temp_ind)
 ```
 Hoogsignificant
 
-*Shortest per jar*
+**Shortest per jar**
 ```{r}
 model_temp_pot<-lm(Speed ~ Temperature, na.action=na.exclude, data=Shortpot_incomplete)
 summary(model_temp_pot)
@@ -215,7 +218,12 @@ summary(model_temp_pot)
 Minder significant
 
 
-## Flight time vs Distance vs Temperature
+
+## 3) Flight time vs Distance + Temperature
+
+## Graph
+
+With all data, outliers included
 
 ```{r}
 library(knitr)
@@ -237,21 +245,24 @@ fitpoints <- predict(fit)
 scatter3D(x, y, z, pch = 19, cex = 0.6, colvar=FALSE, col="dodgerblue3", theta = 40, phi = 0, bty="u", col.panel ="grey93", expand =0.4, col.grid = "white", xlab = "Distance", ylab = "Temperature", zlab = "Flight time", surf = list(x = x.pred, y = y.pred, z = z.pred,  
 facets = TRUE, col=ramp.col(col = c("dodgerblue4", "seagreen2"), n = 100, alpha=0.8), fit = fitpoints, border="black"),main = "Flight time vs Distance + Temperature")
 ```
-*All data*
+
+### Model Ouput
+
+**All data**
 ```{r}
 model_tempdist_all<-lm(Flighttime_min ~ Distance + Temperature, na.action=na.exclude, data=Flights_incomplete)
 summary(model_tempdist_all)
 ```
-Hoogsignificant
+Beide Hoogsignificant
 
-*Shortest per individual*
+**Shortest per individual**
 ```{r}
 model_tempdist_ind<-lm(Flighttime_min ~ Distance + Temperature, na.action=na.exclude, data=Shortind_incomplete)
 summary(model_tempdist_ind)
 ```
 Temperatuur niet significant
 
-*Shortest per jar*
+**Shortest per jar**
 ```{r}
 model_tempdist_pot<-lm(Flighttime_min ~ Distance + Temperature, na.action=na.exclude, data=Shortpot_incomplete)
 summary(model_tempdist_pot)
@@ -260,52 +271,277 @@ Temperatuur niet significant
 
 
 
+## 4) Speed vs Height
 
+### Graphs
 
+```{r warning=FALSE}
+plot10<-ggplot(Flights_incomplete, aes(x=Height, y=Speed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
+plot11<-ggplot(Shortind_incomplete, aes(x=Height, y=Speed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
 
+plot12<-ggplot(Shortpot_incomplete, aes(x=Height, y=Speed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", formula =y ~ x,  se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-
-
-
-
-
-
-
-
-
-```{r}
-ggplot(Flights_incomplete, aes(x=Height, y=Speed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4")+  ggtitle("Flight time vs distance (All| outliers excl)")+ theme(plot.title = element_text(hjust = 0.5))
+ggarrange(plot10, plot11, plot12 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 2, nrow = 2)
 
 ```
 
+### Model Ouput
+
+**All data**
+```{r}
+model_height_all<-lm(Speed ~ Height, na.action=na.exclude, data=Flights_incomplete)
+summary(model_height_all)
+```
+Hoogsignificant
+
+**Shortest per individual**
+```{r}
+model_height_ind<-lm(Speed ~ Height, na.action=na.exclude, data=Shortind_incomplete)
+summary(model_height_ind)
+```
+Niet significant
+
+**Shortest per jar**
+```{r}
+model_height_pot<-lm(Speed ~ Height, na.action=na.exclude, data=Shortpot_incomplete)
+summary(model_height_pot)
+```
+Niet significant
+
+
+
+## 5) Flight time vs Distance + Height
+
+### Graphs
+
+Height = height of the nest
 
 ```{r}
-# Speed vs Cloud coverage
-ggplot(Flights_incomplete, aes(x=Cloudcoverage, y=Speed)) + geom_point(color="lightblue")  + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkblue")
+x <- Flights2_incomplete$Distance
+y <- Flights2_incomplete$Height
+z <- Flights2_incomplete$Flighttime_min
+
+fit <- lm(z ~ x + y, na.action=na.exclude)
+x.pred <- seq(min(x[!is.na(x)]), max(x[!is.na(x)]), length.out = 20)
+y.pred <- seq(min(y[!is.na(y)]), max(y[!is.na(y)]), length.out = 20)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(fit, newdata = xy), 
+                 nrow = 20, ncol = 20)
+fitpoints <- predict(fit)
+
+scatter3D(x, y, z, pch = 19, cex = 0.6, colvar=FALSE, col="dodgerblue3", theta = 40, phi = 15, bty="u", col.panel ="grey93", expand =0.4, col.grid = "white", xlab = "Distance", ylab = "Height", zlab = "Flight time", surf = list(x = x.pred, y = y.pred, z = z.pred,  
+facets = TRUE, col=ramp.col(col = c("dodgerblue4", "seagreen2"), n = 100, alpha=0.8), fit = fitpoints, border="black"),main = "Flight time vs Distance + Height")
 ```
+
+### Model Output
+
+**All data**
+```{r}
+model_distheight_all<-lm(Flighttime_min ~ Distance + Height , na.action=na.exclude, data=Flights_incomplete)
+summary(model_distheight_all)
+```
+
+Height effect blijkt toch significant. In de negatieve zin weliswaar. Hoe hoger het nest hoe minder lang hij erover doet.
+Zou het omgekeerde verwachten..
+
 
 ```{r}
-# Speed vs Windspeed
-ggplot(Flights_incomplete, aes(x=Windspeed, y=Speed)) + geom_point(color="khaki3")  + geom_smooth(method="lm", formula = y ~ x + I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab")
+model_distheight2_all<-lm(Flighttime_min ~ sqrt(I(Distance^2) + I(Height^2)) , na.action=na.exclude, data=Flights_incomplete)
+summary(model_distheight2_all)
 ```
+
+Model volgens Pythagoras? -> Hoogsignificant
+
+
+**Shortest per individual**
+```{r}
+model_distheight_ind<-lm(Flighttime_min ~ Distance + Height , na.action=na.exclude, data=Shortind_incomplete)
+summary(model_distheight_ind)
+```
+
+Height niet significant
 
 ```{r}
-# Speed vs Weight
-ggplot(Flights_incomplete, aes(x=Weight_ind, y=Speed)) + geom_point(color="plum")  + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4")
+model_distheight2_ind<-lm(Flighttime_min ~ sqrt(I(Distance^2) + I(Height^2)) , na.action=na.exclude, data=Shortind_incomplete)
+summary(model_distheight2_ind)
 ```
 
+Hoogsignificant
+
+**Shortest per jar**
+```{r}
+model_distheight_pot<-lm(Flighttime_min ~ Distance + Height , na.action=na.exclude, data=Shortpot_incomplete)
+summary(model_distheight_pot)
+```
+Height niet significant
 
 ```{r}
-# Flight error vs Urbanisation 250m
-ggplot(Flights_incomplete, aes(x=Urbanisation25m, y=FlightError, fill=Observer)) + geom_point(aes(color=Observer))
-
-# Flight error vs Urbanisation 50m
-ggplot(Flights_incomplete, aes(x=Urbanisation50m, y=FlightError, fill=Observer)) + geom_point(aes(color=Observer)) 
-
-# Flight error vs Urbanisation 100m
-ggplot(Flights_incomplete, aes(x=Urbanisation100m, y=FlightError, fill=Observer)) + geom_point(aes(color=Observer))
+model_distheight2_pot<-lm(Flighttime_min ~ sqrt(I(Distance^2) + I(Height^2)) , na.action=na.exclude, data=Shortpot_incomplete)
+summary(model_distheight2_pot)
 ```
+Hoogsignificant
+
+
+
+## 6) Speed vs Cloudcoverage
+
+### Graphs
+
+```{r warning=FALSE}
+plot13<-ggplot(Flights_incomplete, aes(x=Cloudcoverage, y=Speed)) + geom_point(color="lightblue") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkblue") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+
+plot14<-ggplot(Shortind_incomplete, aes(x=Cloudcoverage, y=Speed)) + geom_point(color="lightblue") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkblue") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
+
+plot15<-ggplot(Shortpot_incomplete, aes(x=Cloudcoverage, y=Speed)) + geom_point(color="lightblue") + geom_smooth(method="lm", formula =y ~ x,  se=TRUE, fullrange=FALSE, level=0.95, color="darkblue") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+
+ggarrange(plot13, plot14, plot15 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 2, nrow = 2)
+```
+
+### Model Ouput
+
+**All data**
+```{r}
+model_cloud_all<-lm(Speed ~ Cloudcoverage, na.action=na.exclude, data=Flights_incomplete)
+summary(model_cloud_all)
+```
+Hoogsignificant
+
+**Shortest per individual**
+```{r}
+model_cloud_ind<-lm(Speed ~ Cloudcoverage, na.action=na.exclude, data=Shortind_incomplete)
+summary(model_cloud_ind)
+```
+Minder significant
+
+**Shortest per jar**
+```{r}
+model_cloud_pot<-lm(Speed ~ Cloudcoverage, na.action=na.exclude, data=Shortpot_incomplete)
+summary(model_cloud_pot)
+```
+Niet significant
+
+
+## 7) Speed vs Weight individual
+
+### Graphs
+
+```{r warning=FALSE}
+plot16<-ggplot(Flights_incomplete, aes(x=Weight_ind, y=Speed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+
+plot17<-ggplot(Shortind_incomplete, aes(x=Weight_ind, y=Speed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
+
+plot18<-ggplot(Shortpot_incomplete, aes(x=Weight_ind, y=Speed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x,  se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+
+ggarrange(plot16, plot17, plot18 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 2, nrow = 2)
+```
+
+### Model Output
+
+**All data**
+```{r}
+model_weight_all<-lm(Speed ~ Weight_ind, na.action=na.exclude, data=Flights_incomplete)
+summary(model_weight_all)
+```
+
+Niet significant
+
+**Shortest per individual**
+```{r}
+model_weight_ind<-lm(Speed ~ Weight_ind, na.action=na.exclude, data=Shortind_incomplete)
+summary(model_weight_ind)
+```
+
+Niet significant
+
+**Shortest per jar**
+```{r}
+model_weight_pot<-lm(Speed ~ Weight_ind, na.action=na.exclude, data=Shortpot_incomplete)
+summary(model_weight_pot)
+```
+
+Niet significant
+
+
+
+## 8.1) Speed vs Windspeed
+
+### Graphs
+
+Telkens voor de modellen Speed ~ Windspeed en Speed ~ Windspeed + Windspeed²
+
+```{r warning=FALSE}
+plot19<-ggplot(Flights_incomplete, aes(x=Windspeed, y=Speed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+
+plot20<-ggplot(Shortind_incomplete, aes(x=Windspeed, y=Speed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
+
+plot21<-ggplot(Shortpot_incomplete, aes(x=Windspeed, y=Speed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x,  se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+
+plot22<-ggplot(Flights_incomplete, aes(x=Windspeed, y=Speed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x + I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+
+plot23<-ggplot(Shortind_incomplete, aes(x=Windspeed, y=Speed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x + I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
+
+plot24<-ggplot(Shortpot_incomplete, aes(x=Windspeed, y=Speed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x + I(x^2),  se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+
+ggarrange(plot19, plot20, plot21, plot22, plot23, plot24 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 3, nrow = 2)
+```
+
+
+### Model Output
+
+**All data**
+```{r}
+model_wind_all<-lm(Speed ~ Windspeed, na.action=na.exclude, data=Flights_incomplete)
+summary(model_wind_all)
+
+model_wind2_all<-lm(Speed ~ Windspeed + I(Windspeed^2), na.action=na.exclude, data=Flights_incomplete)
+summary(model_wind2_all)
+```
+
+Tweedegraadsmodel significant
+
+**Shortest per individual**
+
+```{r}
+model_wind_ind<-lm(Speed ~ Windspeed, na.action=na.exclude, data=Shortind_incomplete)
+summary(model_wind_ind)
+
+model_wind2_ind<-lm(Speed ~ Windspeed + I(Windspeed^2), na.action=na.exclude, data=Shortind_incomplete)
+summary(model_wind2_ind)
+```
+
+Beide niet signifcant
+
+**Shortest per jar**
+```{r}
+model_wind_pot<-lm(Speed ~ Windspeed, na.action=na.exclude, data=Shortpot_incomplete)
+summary(model_wind_pot)
+
+model_wind2_pot<-lm(Speed ~ Windspeed + I(Windspeed^2), na.action=na.exclude, data=Shortpot_incomplete)
+summary(model_wind2_pot)
+```
+
+
+## 8.2) Speed vs Windspeed | afhankelijk van de windrichting
+
+Hiervoor werd telkens voor elke meting nagegaan of de hoornaar met meewind (tailwind), tegenwind (upwind) of loodrechte wind (perpendicular) te maken had. Dit volgens de formules:
+
+|𝜃flight −𝜃wind| ≤ 45 is tailwind 
+
+45 < |𝜃flight −𝜃wind|<135 is (quasi) perpendicular 
+
+|𝜃 flight −𝜃wind| ≥135 upwind 
+
+
+### Graphs
 
 ```{r}
 ggplot(data=subset(Flights_incomplete, !is.na(Wind)), aes(x= Wind, col=Wind, y=Speed)) + geom_boxplot()
@@ -314,102 +550,81 @@ ggplot(data=subset(Flights_incomplete, !is.na(Wind)), aes(x= Windspeed, col=Wind
 
 ```
 
-### Kortste vliegtijden per individu
+
+### Model Output
 
 ```{r}
-# Speed vs Cloud coverage
-ggplot(Shortind_incomplete, aes(x=Cloudcoverage, y=Speed)) + geom_point(color="lightblue")  + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkblue")
-```
-
-```{r}
-# Speed vs Windspeed
-ggplot(Shortind_incomplete, aes(x=Windspeed, y=Speed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula = y ~ x + I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab")
-```
-
-```{r}
-# Speed vs Weight
-ggplot(Shortind_incomplete, aes(x=Weight_ind, y=Speed)) + geom_point(color="plum")  + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4")
-```
-
-
-## Kortste vliegtijden per wiekpot
-
-```{r}
-# Speed vs Cloud coverage
-ggplot(Shortpot_incomplete, aes(x=Cloudcoverage, y=Speed)) + geom_point(color="lightblue")  + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkblue")
-```
-
-
-```{r}
-# Speed vs Windspeed
-ggplot(Shortpot_incomplete, aes(x=Windspeed, y=Speed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula = y ~ x + I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab")
-```
-
-```{r}
-# Speed vs Weight
-ggplot(Shortpot_incomplete, aes(x=Weight_ind, y=Speed)) + geom_point(color="plum")  + geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4")
-```
-
-
-## Statistische modellen
-
-## Alle data
-
-
-```{r}
-model_height_all<-lm(Flighttime_min ~ sqrt(I(Distance^2) + I(Height^2)) , na.action=na.exclude, data=Flights_incomplete)
-summary(model_height_all)
-anova(model_height_all)
-
-```
-
-
-```{r}
-# Speed vs Cloud coverage
-model_cloud_all<-lm(Speed ~ Cloudcoverage, na.action=na.exclude, data=Flights_incomplete)
-summary(model_cloud_all)
-anova(model_cloud_all)
-```
-
-```{r}
-# Speed vs Wind Speed
-model_wind_all<-lm(Speed ~ Windspeed, na.action=na.exclude, data=Flights_incomplete)
-summary(model_wind_all)
-anova(model_wind_all)
-
-model_wind2_all<-lm(Speed ~ Windspeed + I(Windspeed^2), na.action=na.exclude, data=Flights_incomplete)
-summary(model_wind2_all)
-anova(model_wind2_all)
-```
-
-```{r}
-# Speed vs Weight
-model_weight_all<-lm(Speed ~ Weight_ind, na.action=na.exclude, data=Flights_incomplete)
-summary(model_weight_all)
-anova(model_weight_all)
-```
-
-
-
-```{r}
-#Speed vs windspeed afhankelijk van de windrichting
 data_tailwind<-Flights_incomplete %>%  filter(Wind!="tailwind")
 data_perpendicular<-Flights_incomplete %>%  filter(Wind!="perpendicular")
 data_upwind<-Flights_incomplete %>%  filter(Wind!="upwind")
 
 model_tailwind<-lm(Speed ~ Windspeed + I(Windspeed^2), na.action=na.exclude, data=data_tailwind)
 summary(model_tailwind)
-anova(model_tailwind)
-
 
 model_perpendicular<-lm(Speed ~ Windspeed + I(Windspeed^2), na.action=na.exclude, data=data_perpendicular)
 summary(model_perpendicular)
-anova(model_perpendicular)
 
 model_upwind<-lm(Speed ~ Windspeed + I(Windspeed^2), na.action=na.exclude, data=data_upwind)
 summary(model_upwind)
-anova(model_upwind)
 ```
+Tailwind significant
+Perpendicular niet significant
+Upwind enkel 2egraadsterm licht significant
+
+
+
+## 9) Flight error vs urbanisation (25m, 50m, 100m)
+
+Flight error is the difference between the actual angle from the bait to the nest and the flight direction I measured.
+
+### Graphs
+
+```{r}
+plot25<-ggplot(data=subset(Flights_incomplete, !is.na(Observer)), aes(x=Urbanisation25m, y=FlightError, fill=Observer)) + geom_point(aes(color=Observer))
+
+plot26<-ggplot(data=subset(Flights_incomplete, !is.na(Observer)), aes(x=Urbanisation50m, y=FlightError, fill=Observer)) + geom_point(aes(color=Observer)) 
+
+plot27<-ggplot(data=subset(Flights_incomplete, !is.na(Observer)), aes(x=Urbanisation100m, y=FlightError, fill=Observer)) + geom_point(aes(color=Observer))
+
+ggarrange(plot25, plot26, plot27 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 2, nrow = 2)
+```
+De foutmarge tussen mij en vrijwilligers lijkt evengroot
+
+```{r}
+library(circular)
+Errorcirc<-circular(Flights_incomplete$FlightError, type=c("angles"), units=c("degrees"), rotation=c("clock"), zero=0)
+
+lm.circular(Errorcirc, Flights_incomplete$Urbanisation25m, type=c("c-l"), init=c(1))
+```
+Moet ik 1 invullen bij init?
+"a vector with initial values of length equal to the columns of x"
+
+```{r}
+lm.circular(Errorcirc, Flights_incomplete$Urbanisation50m, type=c("c-l"), init=c(1))
+```
+Niet significant
+
+```{r}
+lm.circular(Errorcirc, Flights_incomplete$Urbanisation100m, type=c("c-l"), init=c(1))
+
+```
+Significant
+
+
+**TO DO**
+- circulaire statistiek verder uitwerken
+- Urbanisatie per vliegtraject
+
+
+
+
+
+
+
+
+## Statistische modellen probeersels
 
 ```{r}
 # Model kiezen
@@ -445,7 +660,7 @@ summary(model2_1)
 ```
 
 
-### Multicollinearity check
+## Multicollinearity check
 ```{r}
 library(ggcorrplot)
 modelvif<-lm(Speed ~ Temperature + Cloudcoverage + Windspeed + Weight_ind, na.action=na.exclude, data=Flights_incomplete)
@@ -455,80 +670,15 @@ cormat <- round(cor(datacor, use = "pairwise.complete.obs"), 2)
 ggcorrplot(cormat, lab= TRUE, type = "lower", ggtheme = ggplot2::theme_gray,
    colors = c("#6D9EC1", "white", "#E46726"))
 ```
-Top!
+
+##PCA
 
 ```{r}
-# PCA
 library(vegan)
 library(missMDA)
 library(FactoMineR)
-datapca<-select(Flights_incomplete, ID, Cloudcoverage, Windspeed, Temperature, Speed, Weight_ind)
-datapca
-
+datapca<-select(Flights_incomplete, Cloudcoverage, Windspeed, Temperature, Speed, Weight_ind)
 nb <- estim_ncpPCA(datapca, scale = TRUE)
-
 comp<-imputePCA(datapca, ncp=2)
-comp$completeObs
-
 res<-PCA(comp$completeObs)
 ```
-
-
-
-## Kortste vliegtijden per individu
-
-
-
-```{r}
-# Speed vs Cloud coverage
-model_cloud_ind<-lm(Speed ~ Cloudcoverage, na.action=na.exclude, data=Shortind_incomplete)
-summary(model_cloud_ind)
-anova(model_cloud_ind)
-```
-
-```{r}
-# Speed vs Wind Speed
-model_wind_ind<-lm(Speed ~ Windspeed, na.action=na.exclude, data=Shortind_incomplete)
-summary(model_wind_ind)
-anova(model_wind_ind)
-
-model_wind2_ind<-lm(Speed ~ Windspeed + I(Windspeed^2), na.action=na.exclude, data=Shortind_incomplete)
-summary(model_wind2_ind)
-anova(model_wind2_ind)
-```
-
-```{r}
-# Speed vs Weight
-model_weight_ind<-lm(Speed ~ Weight_ind, na.action=na.exclude, data=Shortind_incomplete)
-summary(model_weight_ind)
-anova(model_weight_ind)
-```
-
-## Kortste Vliegtijden per wiekpot
-
-```{r}
-# Speed vs Cloud coverage
-model_cloud_pot<-lm(Speed ~ Cloudcoverage, na.action=na.exclude, data=Shortpot_incomplete)
-summary(model_cloud_pot)
-anova(model_cloud_pot)
-```
-
-```{r}
-# Speed vs Wind Speed
-model_wind_pot<-lm(Speed ~ Windspeed, na.action=na.exclude, data=Shortpot_incomplete)
-summary(model_wind_pot)
-anova(model_wind_pot)
-
-model_wind2_pot<-lm(Speed ~ Windspeed + I(Windspeed^2), na.action=na.exclude, data=Shortpot_incomplete)
-summary(model_wind2_pot)
-anova(model_wind2_pot)
-
-```
-
-```{r}
-# Speed vs Weight
-model_weight_pot<-lm(Speed ~ Weight_ind, na.action=na.exclude, data=Shortpot_incomplete)
-summary(model_weight_pot)
-anova(model_weight_pot)
-```
-
