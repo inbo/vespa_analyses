@@ -44,10 +44,15 @@ Flights_incomplete$Cloudcoverage<- as.numeric(sub("%", "",Flights_incomplete$Clo
 Shortind_incomplete$Cloudcoverage<- as.numeric(sub("%", "",Shortind_incomplete$Cloudcoverage,fixed=TRUE))/100
 Shortpot_incomplete$Cloudcoverage<- as.numeric(sub("%", "",Shortpot_incomplete$Cloudcoverage,fixed=TRUE))/100
 
-## Urbanisatie per vliegtijd toevoegen
+## Urbanisatiecirkels per vliegtijd toevoegen
 Flights_incomplete<-merge(Flights_incomplete, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"), all=TRUE)
 Shortind_incomplete<-merge(Shortind_incomplete, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"), all=TRUE)
 Shortpot_incomplete<-merge(Shortpot_incomplete, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"), all=TRUE)
+
+## Urbanisatietrajecten per vliegtijd toevoegen
+Flights_incomplete<-merge(Flights_incomplete, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"), all=TRUE)
+Shortind_incomplete<-merge(Shortind_incomplete, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"), all=TRUE)
+Shortpot_incomplete<-merge(Shortpot_incomplete, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"), all=TRUE)
 
 ## Gewicht individu per vliegtijd toevoegen
 Flights_incomplete<-merge(Flights_incomplete, Individuals[, c("NestID", "BaitID","ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"), all=TRUE)
@@ -579,6 +584,7 @@ Flight error is the difference between the actual angle from the bait to the nes
 
 ### Graphs
 
+#### Urbanisatiecirkels
 ```{r}
 plot25<-ggplot(data=subset(Flights_incomplete, !is.na(Observer)), aes(x=Urbanisation25m, y=FlightError, fill=Observer)) + geom_point(aes(color=Observer))
 
@@ -612,6 +618,45 @@ lm.circular(Errorcirc, Flights_incomplete$Urbanisation100m, type=c("c-l"), init=
 ```
 Significant
 
+
+#### Urbanisatietrajecten
+
+```{r}
+plot28<-ggplot(data=subset(Flights_incomplete, !is.na(Observer)), aes(x=Traject25m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+
+plot29<-ggplot(data=subset(Flights_incomplete, !is.na(Observer)), aes(x=Traject50m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x , se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+
+plot30<-ggplot(data=subset(Flights_incomplete, !is.na(Observer)), aes(x=Traject100m, y=FlightError)) + geom_point(col="hotpink1")+ geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+
+ggarrange(plot28, plot29, plot30 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 2, nrow = 2)
+```
+
+## 10) Flight time vs Urbanisation
+
+### Graphs
+
+#### Urbanisatiecirkels
+```{r}
+plot30<-ggplot(data=subset(Shortind_incomplete, !is.na(Observer)), aes(x=Urbanisation25m, y=Flighttime_min)) + geom_point() + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+               
+plot31<-ggplot(data=subset(Shortind_incomplete, !is.na(Observer)), aes(x=Urbanisation50m, y=Flighttime_min)) + geom_point() +
+geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+
+plot32<-ggplot(data=subset(Shortind_incomplete, !is.na(Observer)), aes(x=Urbanisation100m, y=Flighttime_min)) + geom_point() + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+
+ggarrange(plot30, plot31, plot32 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 2, nrow = 2)
+```
+
+
+## Varpart
+
+```{r}
+varpart(Flights_incomplete$Flighttime_min, ~Distance, ~Temperatuur, ~Windspeed, na.action=na.exclude, data= Flights_incomplete)
+```
 
 **TO DO**
 - circulaire statistiek verder uitwerken
