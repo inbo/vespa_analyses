@@ -10,20 +10,19 @@ output:
 # Data inladen
 
 ```{r}
-getwd()
-setwd("C:/Users/helee/OneDrive/Documenten/GitHub/vespa_analyses/Input")
 
-Baits<-read.table(file = "Baits_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
-Flights_incomplete<-read.table(file = "Flights_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Baits<-read.table(file = "~/GitHub/vespa_analyses/Input/Baits_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
-Nests<-read.table(file = "Nests_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Flights_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
-Shortind_incomplete<-read.table(file = "Shortind_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Nests<-read.table(file = "~/GitHub/vespa_analyses/Input/Nests_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
-Shortpot_incomplete<-read.table(file = "Shortpot_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Shortind_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortind_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
-Individuals<-read.table(file = "Individuals.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Shortpot_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortpot_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+
+Individuals<-read.table(file = "~/GitHub/vespa_analyses/Input/Individuals.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
 ```
 
@@ -257,7 +256,7 @@ z.pred <- matrix(predict(fit, newdata = xy),
                  nrow = 20, ncol = 20)
 fitpoints <- predict(fit)
 
-scatter3D(x, y, z, pch = 19, cex = 0.6, colvar=FALSE, col="dodgerblue3", theta = 40, phi = 0, bty="u", col.panel ="grey93", expand =0.4, col.grid = "white", xlab = "Distance", ylab = "Temperature", zlab = "Flight time", surf = list(x = x.pred, y = y.pred, z = z.pred,  
+scatter3D(x, y, z, pch = 19, cex = 0.6, colvar=FALSE, col="dodgerblue3", theta = 210, phi = 10, bty="u", col.panel ="grey93", expand =0.4, col.grid = "white", xlab = "Distance", ylab = "Temperature", zlab = "Flight time", surf = list(x = x.pred, y = y.pred, z = z.pred,  
 facets = TRUE, col=ramp.col(col = c("dodgerblue4", "seagreen2"), n = 100, alpha=0.8), fit = fitpoints, border="black"),main = "Flight time vs Distance + Temperature")
 ```
 
