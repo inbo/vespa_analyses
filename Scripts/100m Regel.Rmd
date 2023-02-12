@@ -1,0 +1,261 @@
+---
+title: "100m Regel"
+author: "Heleen Van Ransbeeck"
+date: "2023-02-12"
+output: html_document
+---
+
+# Tests '1min=100m'-regel
+
+
+# Data inladen
+
+```{r}
+Baits<-read.table(file = "~/GitHub/vespa_analyses/Input/Baits_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+
+Flights_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+
+Nests<-read.table(file = "~/GitHub/vespa_analyses/Input/Nests_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+
+Shortind_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortind_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+
+Shortpot_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortpot_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+
+Individuals<-read.table(file = "~/GitHub/vespa_analyses/Input/Individuals.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+
+```
+
+-incomplete wil zeggen dat de weergegevens nog niet volledig zijn. Ik
+wacht hiervoor op het KMI.
+
+
+# Aanpassingen datasets
+
+```{r}
+# Overbodige kolommen wegdoen, foutje in excel
+Flights_incomplete<-Flights_incomplete[1:(length(Flights_incomplete)-2)]
+Shortind_incomplete<-Shortind_incomplete[1:(length(Shortind_incomplete)-2)]
+
+#Foerageersnelheid en vliegsnelheid (m/s) toevoegen aan tabel
+Flights_incomplete$ForagingSpeed<-Flights_incomplete$Distance/(Flights_incomplete$Flighttime_min*60)
+Shortind_incomplete$ForagingSpeed<-Shortind_incomplete$Distance/(Shortind_incomplete$Flighttime_min*60)
+
+Flights_incomplete$FlightSpeed<-Flights_incomplete$Distance*2/(Flights_incomplete$Flighttime_min*60)
+Shortind_incomplete$FlightSpeed<-Shortind_incomplete$Distance*2/(Shortind_incomplete$Flighttime_min*60)
+```
+
+Volgende datasets zijn gecreëerd:
+
+- Flights_incomplete: dataset met alle vliegtijden
+- Shortind_incomplete: dataset met kortste vliegtijden per individu
+
+
+**Voorstel:**
+Voor het model: *Flight time ~ Distance*
+zou ik de dataset vliegtijden per individu nemen.
+Omdat we hiermee de theoretische regel 1min=100m kunnen verifiëren.
+De imkers nemen hiervoor altijd kortste meting
+
+Voor modellen met weerparameters, gewicht, urbanisatie:
+Hiervoor zou ik telkens de hele dataset gebruiken omdat elke meting van deze 
+factoren afhangt.
+
+
+# Datapunten op 2km weglaten
+
+Deze metingen zijn nogal onzeker omdat deze waarnemingen ook van een
+ander nest kunnen komen. Was op 2km afstand en in Melle zijn toch
+redelijk wat nesten gevonden. Kans dat het van een nest is dat niet
+gevonden werd is groot.
+
+Als de website van Vespawatch in orde is kan ik kijken of er eventueel
+een nest in de buurt is gevonden.
+
+In de grafieken worden telkens outliers weggelaten en erin gelaten.
+
+**In de statistische modellen gaan we verder met de dataset zonder de outliers in Melle**
+
+
+```{r}
+library(dplyr)
+Flights2_incomplete<-Flights_incomplete %>%  filter(NestID!=1)
+Shortind2_incomplete<-Shortind_incomplete %>%  filter(NestID!=1)
+```
+
+
+
+
+# Flight time vs Distance
+
+## Graphs
+
+Grafieken met en zonder outliers telkens voor de volledige dataset en de dataset
+met enkel de kortste vliegtijden per individu.
+
+**Oranje lijn** stelt de theoretische regel "1min vliegtijd is 100m tot het
+nest" voor.
+
+**Groene lijn** stelt de regressielijn voor.
+
+```{r echo=FALSE, warning=FALSE}
+library(ggplot2)
+library(ggpubr)
+
+plot1<-ggplot(Flights_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=TRUE, level=0.95, color="darkcyan") +  ggtitle("All data | outliers incl")+ theme(plot.title = element_text(hjust = 0.5, size=10)) + xlim(0,2100) + ylim(0,21)
+
+
+plot2<-ggplot(Flights2_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=TRUE, level=0.95, color="darkcyan")+  ggtitle("All data | outliers excl")+ theme(plot.title = element_text(hjust = 0.5, size=10)) + xlim(0,2100)
+
+plot3<-ggplot(Shortind_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9)  + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=TRUE, level=0.95, color="darkcyan") +  ggtitle("Shortest per ind. | outliers incl")+ theme(plot.title = element_text(hjust = 0.5, size=10)) + xlim(0,2100)+ ylim(0,21)
+
+
+plot4<-ggplot(Shortind2_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=TRUE, level=0.95, color="darkcyan") +  ggtitle("Shortest per ind. | outliers excl")+ theme(plot.title = element_text(hjust = 0.5, size=10)) + xlim(0,2100)+ ylim(0,21)
+
+
+ggarrange(plot1, plot3, plot2, plot4 + rremove("x.text"), 
+          labels = c("A", "B", "C", "D"),
+          ncol = 2, nrow = 2)
+```
+
+
+
+## Model Output
+
+### 1) Regressie significantie
+
+**Voor alle data**
+
+Probleem met residuals die niet normaal verdeeld zijn! Poisson distributie helpt 
+niet en transformaties (log, sqrt) van de variabelen ook niet
+-> niet-parametrische test?
+
+
+```{r warning=FALSE}
+model_dist_all2<-lm(Flighttime_min ~ Distance, na.action=na.exclude, data=Flights2_incomplete)
+summary(model_dist_all2)
+
+res<-residuals(model_dist_all2)
+res2<-res*res
+plot(fitted(model_dist_all2), res)
+plot(fitted(model_dist_all2), res2)
+shapiro.test(res)
+
+qqnorm(res)
+qqline(res)
+```
+
+
+
+Poging non parametrisch: Kendall–Theil Sen Siegel nonparametric linear regression
+Ook hierbij residuals testen?
+-> niet normaal 
+```{r}
+library(mblm)
+
+model.k<-mblm(Flighttime_min ~ Distance, data=Flights2_incomplete %>%  filter(Flighttime_min!="NA"))
+summary(model.k)
+
+res<-residuals(model.k)
+res2<-res*res
+plot(fitted(model.k), res)
+plot(fitted(model.k), res2)
+shapiro.test(res)
+
+qqnorm(res)
+qqline(res)
+
+```
+
+
+**Shortest per individual**
+
+```{r}
+model_dist_ind2<-lm(Flighttime_min ~ Distance, na.action=na.exclude, data=Shortind2_incomplete)
+summary(model_dist_ind2)
+```
+
+
+
+### 2) Mixed model
+
+**Voor alle data**
+```{r}
+# ID maken per individu
+Flights2_incomplete$Individualcode <- paste(Flights2_incomplete$NestID, Flights2_incomplete$BaitID,Flights2_incomplete$ColorInd, sep="_")
+```
+
+
+Variatie tussen de *waarnemers* bleek verwaarloosbaar(0). 
+Variatie tussen de *nesten* bleek het hoogste (1,6563)
+
+```{r warning=FALSE}
+# Mixed model, Observer, Nest en Individuele variatie in rekening brengen
+library(lmerTest)
+library(lme4)
+Flights2_incomplete$NestID<-as.factor(Flights2_incomplete$NestID)
+
+
+mixed<-lmer(Flighttime_min ~ Distance + (1|Observer) + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), data=Flights2_incomplete)
+summary(mixed)
+anova(mixed, ddf="Satterthwaite", type=3)
+```
+
+
+**Shortest per individual**
+
+Variatie tussen de *waarnemers* bleek verwaarloosbaar(0). 
+Variatie tussen de *nesten* = 0.30375
+
+```{r warning=FALSE}
+
+library(lmerTest)
+library(lme4)
+Shortind2_incomplete$NestID<-as.factor(Shortind2_incomplete$NestID)
+
+
+mixed<-lmer(Flighttime_min ~ Distance + (1|Observer) + (1|NestID) + (1|NestID:BaitID), data=Shortind2_incomplete)
+summary(mixed)
+anova(mixed, ddf="Satterthwaite", type=3)
+```
+
+
+
+### 3) Significant verschil tussen oranje en groene rechte
+
+**Voor alle data**
+-> Ja, p-value = 2.321917e-26
+
+Klopt deze berekening?
+```{r}
+Flights2_incomplete$Expected_Time<-Flights2_incomplete$Distance*0.01     ## Expected vliegtijd berekening (oranje)
+Flights2_incomplete$Res<-Flights2_incomplete$Flighttime_min - Flights2_incomplete$Expected_Time    # Residuals berekening van oranje rechte
+
+modelOrange<-sum(Flights2_incomplete$Res^2, na.rm= TRUE)   ## squared residuals (oranje)
+modelGreen<-sum(model_dist_all2$residuals^2)   ## squared residuals (groen)
+
+
+dfOrange<-length(na.omit(Flights2_incomplete$Distance))-2    # degrees of freedom berekening (obs-interecept -slope)
+dfGreen<-length(na.omit(Flights2_incomplete$Flighttime_min))-2    # degrees of freedom berekening (obs-int. -slope)
+
+Fstat<-((modelOrange-modelGreen)/(dfOrange-dfGreen))/(modelGreen/dfGreen)    # F statistic
+pf(Fstat, dfOrange, dfGreen, lower.tail = FALSE)
+```
+
+
+**Shortest per individual** 
+-> Ja, p-value = 0
+
+```{r}
+Shortind2_incomplete$Expected_Time<-Shortind2_incomplete$Distance*0.01     ## Expected vliegtijd berekening (oranje)
+Shortind2_incomplete$Res<-Shortind2_incomplete$Flighttime_min - Shortind2_incomplete$Expected_Time    # Residuals berekening van oranje rechte
+
+modelOrange<-sum(Shortind2_incomplete$Res^2, na.rm= TRUE)   ## squared residuals (oranje)
+modelGreen<-sum(model_dist_ind2$residuals^2)   ## squared residuals (groen)
+
+
+dfOrange<-length(na.omit(Shortind2_incomplete$Distance))-2    # degrees of freedom berekening (obs-interecept -slope)
+dfGreen<-length(na.omit(Shortind2_incomplete$Flighttime_min))-2    # degrees of freedom berekening (obs-int. -slope)
+
+Fstat<-((modelOrange-modelGreen)/(dfOrange-dfGreen))/(modelGreen/dfGreen)    # F statistic
+pf(Fstat, dfOrange, dfGreen, lower.tail = FALSE)
+```

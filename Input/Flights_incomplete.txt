@@ -85,7 +85,7 @@ ID	Date	Time	NestID	BaitID	ColorInd	Observer	Distance	DirectionToNest	Flightdire
 84	15/09/2022	16:25	16	11	Unmarked	B	84	242	240	2	0:01:41	1.683	1.00	0	2		16.0				
 85	15/09/2022	16:28	16	11	Unmarked	B	84	242	240	2	0:01:02	1.033	1.00	0	2		16.0				
 86	15/09/2022	16:30	16	11	Unmarked	B	84	242	240	2	0:01:36	1.600	1.00	0	2		16.0				
-87			16	2		A	83	24	60	36											
+87			16	2	Unmarked	A	83	24	60	36											
 88	20/09/2022	17:35	16	11	Blue	A	84	242	240	2	0:01:30	1.500	0.80	0	1	45	17.2	165	upwind		
 89	20/09/2022	17:47	16	11	Orange	A	84	242	240	2			0.80	0	1	45	17.2	165	upwind		
 90	20/09/2022	18:03	16	11	Blue	A	84	242	240	2	0:01:18	1.300	0.80	0	1	45	17.0	165	upwind		
@@ -126,9 +126,9 @@ ID	Date	Time	NestID	BaitID	ColorInd	Observer	Distance	DirectionToNest	Flightdire
 125			18	1	Unmarked	L	706	240.8	245	4.2											
 126			18	1	Unmarked	L	706	240.8	240	0.8											
 127			18	4	Yellow	L	110	102	110	8	0:01:25	1.417									
-128	19/09/2022		19	13	Blue	B	340	83.8	140	56.2	0:03:25	3.417	0.80	0	1	45	17.2	95	perpendicular		
-129	19/09/2022		19	13	Blue	B	340	83.8	140	56.2	0:02:00	2.000	0.80	0	1	45	17.2	95	perpendicular		
-130	19/09/2022		19	13	Blue	B	340	83.8	140	56.2	0:03:15	3.250	0.80	0	1	45	17.2	95	perpendicular		
+128	19/09/2022	15:45	19	13	Blue	B	340	83.8	140	56.2	0:03:25	3.417	0.80	0	1	45	17.2	95	perpendicular		
+129	19/09/2022	15:55	19	13	Blue	B	340	83.8	140	56.2	0:02:00	2.000	0.80	0	1	45	17.2	95	perpendicular		
+130	19/09/2022	16:05	19	13	Blue	B	340	83.8	140	56.2	0:03:15	3.250	0.80	0	1	45	17.2	95	perpendicular		
 131	7/10/2022	18:36	19	13	Pink	A	340	83.8	70	13.8	0:02:50	2.833	0.90	0	0		17.0	70	perpendicular		
 132	7/10/2022	18:43	19	13	Pink	A	340	83.8	70	13.8	0:03:20	3.333	0.90	0	0		17.0	70	perpendicular		
 133	7/10/2022	18:49	19	13	Pink	A	340	83.8	70	13.8	0:03:00	3.000	0.90	0	0		17.0	70	perpendicular		
@@ -188,7 +188,7 @@ ID	Date	Time	NestID	BaitID	ColorInd	Observer	Distance	DirectionToNest	Flightdire
 187	6/10/2022		24	2	Blue	S	459	67.8	75	7.2											
 188	6/10/2022		24	3	Blue	S	237	68	75	7											
 189	1/10/2022	12:11	26	1	Blue	T	548	203.3	200	3.3	0:05:00	5.000		0							
-190	22/09/2022	18:30	27	1	Groen1	U	674	280.5	335	54.5	0:08:30	8.500									
+190	22/09/2022	18:30	27	1	Green	U	674	280.5	335	54.5	0:08:30	8.500									
 191	18/10/2022	18:05	28	Asterdreef	Blue	A	359	72.5	80	7.5	0:03:27	3.450	1.00	0	0		18.7				
 192	19/10/2022	18:13	28	Asterdreef	Blue	A	359	72.5	80	7.5	0:03:09	3.150	1.00	0	0		18.5				
 193	20/10/2022	18:20	28	Asterdreef	Blue	A	359	72.5	80	7.5	0:03:08	3.133	1.00	0	0		18.0				
@@ -279,7 +279,7 @@ ID	Date	Time	NestID	BaitID	ColorInd	Observer	Distance	DirectionToNest	Flightdire
 278	1/11/2022	16:30	40	Goorstraat	White	E	164	25	70	45	0:02:30	2.500									
 279	7/11/2022	12:30	40	Venstraat_tuin	Blue	N	82	240	250	10	0:03:30	3.500									
 280	7/11/2022	14:40	40	Venstraat_tuin	Blue	K	82	240	200	40	0:03:04	3.067									
-281	6/11/2022		40	Venstraat_doodlopend		E	207	280	300	20											
+281	6/11/2022		40	Venstraat_doodlopend	Unmarked	E	207	280	300	20											
 282	30/10/2022	14:00	40	ImkerBart	Unmarked	R	248	32	0	32											
 283	17/10/2022	14:00	41	Apotheek	Blue	J	869	13.3	3	10.3	0:06:00	6.000									
 284	17/10/2022	14:00	41	Werchtersebaan	Blue	J	1269	202	212	10	0:09:00	9.000									

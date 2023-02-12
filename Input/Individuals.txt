@@ -53,7 +53,7 @@ NestID	BaitID	ColorInd	Weight_jar_ind	Weight_jar	Weight_ind
 19	13	Blue				
 19	13	Pink	31.41	31.07666667	0.33	
 20	1	A				
-20	2	Blue				
+20	2	B				
 21	Mais	Blue/Red	10.8025	10.42	0.38	
 21	Mais	Green				
 21	Koeien	Yellow/Blue				
@@ -101,7 +101,7 @@ NestID	BaitID	ColorInd	Weight_jar_ind	Weight_jar	Weight_ind
 33	Hof Ter Mere	Yellow	31.86333333	31.42666667	0.44	
 34	1	A				
 34	2	B				
-34	3	C				
+34	2	C				
 35	1	Blue				
 35	2	A				
 36	1	Yellow				
@@ -116,7 +116,7 @@ NestID	BaitID	ColorInd	Weight_jar_ind	Weight_jar	Weight_ind
 39	Apotheek	Red				
 40	Goorstraat	White				
 40	Venstraat_tuin	Blue				
-40	Venstraat_doodlopend					
+40	Venstraat_doodlopend	Unmarked					
 40	ImkerBart	Unmarked				
 41	Apotheek	Blue				
 41	Werchtersebaan	Blue				
