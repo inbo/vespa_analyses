@@ -1,4 +1,4 @@
-NestID	Location	Longitude	Latitude	Height	Stage	Webpage
+NestID	Location	Latitude	Longitude	Height	Stage	Webpage
 1	Melle	50.9979094	3.7824062	22	secondary	https://www.inaturalist.org/observations/131762910 
 3	Schiplaken_Blokstraat	50.9782570	4.5297150	38	secondary	https://www.inaturalist.org/observations/132656804
 4	Schiplaken_Goorstraat	50.9834210	4.5311970	18	secondary	https://www.inaturalist.org/observations/133230405
