@@ -1,5 +1,5 @@
 ---
-title: "Masterthesis script, weerparameters "
+title: "Masterthesis script, eigen weerparameters "
 author: "Heleen Van Ransbeeck"
 date: "2023-01-03"
 output:
@@ -75,28 +75,19 @@ Volgende datasets zijn gecreëerd:
 - Shortind_incomplete: dataset met kortste vliegtijden per individu
 - Shortpot_incomplete: dataset met kortste vliegtijden per wiekpot
 
-**Voorstel:**
 Voor het model: *Flight time ~ Distance*
-zou ik de dataset vliegtijden per individu nemen (en eventueel per wiekpot?)
+gebruiken we de dataset vliegtijden per individu
 Omdat we hiermee de theoretische regel 1min=100m kunnen verifiëren.
 De imkers nemen hiervoor altijd kortste meting
 
-Voor modellen met weerparameters, gewicht, urbanisatie:
-Hiervoor zou ik telkens de hele dataset gebruiken omdat elke meting van deze 
+Voor modellen met *weerparameters, gewicht, urbanisatie*:
+Hiervoor nemen we telkens de hele dataset, omdat elke meting van deze 
 factoren afhangt.
 
 
 # Datapunten op 2km weglaten
 
-Deze metingen zijn nogal onzeker omdat deze waarnemingen ook van een
-ander nest kunnen komen. Was op 2km afstand en in Melle zijn toch
-redelijk wat nesten gevonden. Kans dat het van een nest is dat niet
-gevonden werd is groot.
-
-Als de website van Vespawatch in orde is kan ik kijken of er eventueel
-een nest in de buurt is gevonden.
-
-**Voorlopig gaan we verder met de dataset zonder de outliers in Melle**
+**We gaan verder met de dataset zonder de outliers in Melle**
 
 ```{r}
 library(dplyr)
@@ -113,67 +104,31 @@ Shortind2_incomplete$Individualcode <- paste(Shortind2_incomplete$NestID, Shorti
 
 
 
+**VRAAG:** Hoe grafiek maken van parameters mixed model?
 
 
 
 
-# Data exploratie
+
+# 1.1) ForagingSpeed vs Temperature
+
+## Graphs
 
 
-## 1) Flight Error vs Distance
-
-### Graphs
-
-```{r}
-ggplot(Flights2_incomplete, aes(x=Distance, y=FlightError)) + geom_point(color="cadetblue2") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="cadetblue") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+```{r echo=FALSE, warning=FALSE}
+ggplot(Flights2_incomplete, aes(x=Temperature, y=ForagingSpeed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 ```
 
-### Model Output
+## Model Output
+
+- Licht significant
+
+- Normality ok!
 
 ```{r}
 library(lmerTest)
 library(lme4)
 
-model_errdist_all<-lmer(FlightError ~ Distance + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
-summary(model_errdist_all)
-anova(model_errdist_all, ddf="Satterthwaite", type=3)
-```
-
-
-
-## 2) ForagingSpeed vs Temperature
-
-### Graphs
-
-Grafieken zonder outliers telkens voor de volgende datasets 
-
-- volledige dataset 
-
-- enkel kortste vliegtijden per individu 
-
-- enkel kortste vliegtijden per wiekpot
-
-```{r echo=FALSE, warning=FALSE}
-plot7<-ggplot(Flights2_incomplete, aes(x=Temperature, y=ForagingSpeed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-plot8<-ggplot(Shortind2_incomplete, aes(x=Temperature, y=ForagingSpeed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
-
-plot9<-ggplot(Shortpot2_incomplete, aes(x=Temperature, y=ForagingSpeed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x,  se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-ggarrange(plot7, plot8, plot9 + rremove("x.text"), 
-          labels = c("A", "B", "C"),
-          ncol = 2, nrow = 2)
-```
-
-### Model Output
-
-**All data**
-
-Significant
-
-Normality ok!
-
-```{r}
 model_temp_all<-lmer(ForagingSpeed ~ Temperature + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
 summary(model_temp_all)
 anova(model_temp_all, ddf="Satterthwaite", type=3)
@@ -186,9 +141,10 @@ qqline(res)
 
 
 
-## 3) Flight time vs Distance + Temperature
 
-### Graph
+# 1.2) Flight time vs Distance + Temperature
+
+## Graph
 
 ```{r}
 library(knitr)
@@ -217,7 +173,6 @@ facets = TRUE, col=ramp.col(col = c("dodgerblue4", "seagreen2"), n = 100, alpha=
 Had met deze link problemen met expand.grid
 https://stackoverflow.com/questions/38331198/add-regression-plane-to-3d-scatter-plot-in-plotly
 
-
 Dan maar grid dat van hierboven gebruikt, maar nu klopt er precies iets niet?
 Alle datapunten liggen boven het oppervlak.
 
@@ -227,38 +182,29 @@ library(tidyverse)
 
 FlightsNoNA<-Flights2_incomplete %>%  filter(Flighttime_min!="NA")
 FlightsNoNA<-FlightsNoNA %>%  filter(Temperature!="NA")
-
-
 fig <- plot_ly(FlightsNoNA, x = ~Distance, y = ~Temperature, z = ~Flighttime_min, size=1)
 fig <- fig %>% add_markers()
 fig <- fig %>% layout(scene = list(xaxis = list(title = 'Distance'),
                      yaxis = list(title = 'Temperature'),
                      zaxis = list(title = 'Flight time (min)')))
-
-
 p2 <- add_trace(p = fig,
                 z = z.pred,
                 x = seq(2100, 0, by = -100),
                 y = seq(0, 30, by = 10),
                 type = "surface")
 p2
-
 ```
 
 
 
-### Model Ouput
+## Model Ouput
 
-**All data** 
+- Temperatuur licht significant
 
-Distance en temperatuur hoogsignificant
-
-Normality niet ok!
-
-Poisson en log/sqrt werken niet
+- Normality niet ok!
 
 ```{r}
-model_tempdist_all<-lm(Flighttime_min ~ Distance + Temperature, na.action=na.exclude, data=Flights2_incomplete)
+model_tempdist_all<-lmer(Flighttime_min ~ Distance + Temperature + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.exclude, data=Flights2_incomplete)
 summary(model_tempdist_all)
 
 res<-residuals(model_tempdist_all)
@@ -269,120 +215,24 @@ qqline(res)
 
 
 
-## 4) ForagingSpeed vs Height
-
-### Graphs
-
-```{r warning=FALSE}
-plot10<-ggplot(Flights2_incomplete, aes(x=Height, y=ForagingSpeed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-plot11<-ggplot(Shortind2_incomplete, aes(x=Height, y=ForagingSpeed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
-
-plot12<-ggplot(Shortpot2_incomplete, aes(x=Height, y=ForagingSpeed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", formula =y ~ x,  se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-ggarrange(plot10, plot11, plot12 + rremove("x.text"), 
-          labels = c("A", "B", "C"),
-          ncol = 2, nrow = 2)
-
-```
-
-### Model Ouput
-
-**All data** 
-
-Hoogsignificant
-
-Normality niet ok!
-
-Poisson en log/sqrt werken niet
-
-```{r}
-model_height_all<-lmer(ForagingSpeed ~ Height + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
-summary(model_height_all)
-anova(model_height_all, ddf="Satterthwaite", type=3)
-
-
-res<-residuals(model_height_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
 
 
 
-## 5) Flight time vs Distance + Height
+# 2) ForagingSpeed vs Cloudcoverage
 
-### Graphs
-
-Height = height of the nest
-
-```{r}
-x <- Flights2_incomplete$Distance
-y <- Flights2_incomplete$Height
-z <- Flights2_incomplete$Flighttime_min
-
-fit <- lm(z ~ x + y, na.action=na.exclude)
-x.pred <- seq(min(x[!is.na(x)]), max(x[!is.na(x)]), length.out = 20)
-y.pred <- seq(min(y[!is.na(y)]), max(y[!is.na(y)]), length.out = 20)
-xy <- expand.grid( x = x.pred, y = y.pred)
-z.pred <- matrix(predict(fit, newdata = xy), 
-                 nrow = 20, ncol = 20)
-fitpoints <- predict(fit)
-
-scatter3D(x, y, z, pch = 19, cex = 0.6, colvar=FALSE, col="dodgerblue3", theta = 40, phi = 15, bty="u", col.panel ="grey93", expand =0.4, col.grid = "white", xlab = "Distance", ylab = "Height", zlab = "Flight time", surf = list(x = x.pred, y = y.pred, z = z.pred,  
-facets = TRUE, col=ramp.col(col = c("dodgerblue4", "seagreen2"), n = 100, alpha=0.8), fit = fitpoints, border="black"),main = "Flight time vs Distance + Height")
-```
-
-### Model Output
-
-**All data**
-
-```{r}
-model_distheight_all<-lm(Flighttime_min ~ Distance + Height , na.action=na.exclude, data=Flights2_incomplete)
-summary(model_distheight_all)
-```
-
-Height effect blijkt toch significant. In de negatieve zin weliswaar.
-Hoe hoger het nest hoe minder lang hij erover doet. Zou het omgekeerde
-verwachten..
-
-**Voorstel: Model volgens Pythagoras?** 
-
-Hoogsignificant
-```{r}
-model_distheight2_all<-lmer(Flighttime_min ~ sqrt(I(Distance^2) + I(Height^2)) + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
-summary(model_distheight2_all)
-anova(model_distheight2_all, ddf="Satterthwaite", type=3)
-```
-
-
-
-
-## 6) ForagingSpeed vs Cloudcoverage
-
-### Graphs
+## Graphs
 
 ```{r warning=FALSE}
-plot13<-ggplot(Flights2_incomplete, aes(x=Cloudcoverage, y=ForagingSpeed)) + geom_point(color="lightblue") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkblue") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+ggplot(Flights2_incomplete, aes(x=Cloudcoverage, y=ForagingSpeed)) + geom_point(color="lightblue") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkblue") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot14<-ggplot(Shortind2_incomplete, aes(x=Cloudcoverage, y=ForagingSpeed)) + geom_point(color="lightblue") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkblue") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
-
-plot15<-ggplot(Shortpot2_incomplete, aes(x=Cloudcoverage, y=ForagingSpeed)) + geom_point(color="lightblue") + geom_smooth(method="lm", formula =y ~ x,  se=TRUE, fullrange=FALSE, level=0.95, color="darkblue") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-ggarrange(plot13, plot14, plot15 + rremove("x.text"), 
-          labels = c("A", "B", "C"),
-          ncol = 2, nrow = 2)
 ```
 
 
-### Model Ouput
+## Model Ouput
 
-**All data** 
+- Niet significant
 
-Hoogsignificant
-
-Normality ok!
-
+- Normality ok!
 
 ```{r}
 model_cloud_all<-lmer(ForagingSpeed ~ Cloudcoverage + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
@@ -396,46 +246,14 @@ qqline(res)
 ```
 
 
-## 7) ForagingSpeed vs Weight individual
-
-### Graphs
-
-```{r warning=FALSE}
-plot16<-ggplot(Flights2_incomplete, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-plot17<-ggplot(Shortind2_incomplete, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
-
-plot18<-ggplot(Shortpot2_incomplete, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x,  se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-ggarrange(plot16, plot17, plot18 + rremove("x.text"), 
-          labels = c("A", "B", "C"),
-          ncol = 2, nrow = 2)
-```
-
-### Model Output
-
-**All data** 
-
-Niet significant
-
-Normality ok!
-
-```{r}
-model_weight_all<-lmer(ForagingSpeed ~ Weight_ind + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
-summary(model_weight_all)
-anova(model_weight_all, ddf="Satterthwaite", type=3)
-
-res<-residuals(model_weight_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
 
 
 
-## 8.1) ForagingSpeed vs Windspeed
 
-### Graphs
+
+# 3.1) ForagingSpeed vs Windspeed
+
+## Graphs
 
 Telkens voor de modellen 
 
@@ -444,31 +262,21 @@ ForagingSpeed \~ Windspeed
 ForagingSpeed \~ Windspeed²
 
 ```{r warning=FALSE}
-plot19<-ggplot(Flights2_incomplete, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot1<-ggplot(Flights2_incomplete, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot20<-ggplot(Shortind_incomplete, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
+plot2<-ggplot(Flights2_incomplete, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot21<-ggplot(Shortpot_incomplete, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x,  se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot22<-ggplot(Flights2_incomplete, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-plot23<-ggplot(Shortind_incomplete, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
-
-plot24<-ggplot(Shortpot_incomplete, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ I(x^2),  se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("Shortest per jar")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-ggarrange(plot19, plot20, plot21, plot22, plot23, plot24 + rremove("x.text"), 
-          labels = c("A", "B", "C"),
-          ncol = 3, nrow = 2)
+ggarrange(plot1, plot2 + rremove("x.text"), 
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1)
 ```
 
-### Model Output
+## Model Output
 
-**All data** 
-Beide modellen significant
+- Beide modellen licht significant
 
-Normality niet ok!
-
-Poisson en log/sqrt werken niet
+- Beide normality ok!
 
 ```{r}
 model_wind_all<-lmer(ForagingSpeed ~ Windspeed + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
@@ -494,7 +302,8 @@ qqline(res)
 
 
 
-## 8.2) ForagingSpeed vs Windspeed \| afhankelijk van de windrichting
+
+# 3.2) ForagingSpeed vs Windspeed \| afhankelijk van de windrichting
 
 Hiervoor werd telkens voor elke meting nagegaan of de hoornaar met
 meewind (tailwind), tegenwind (upwind) of loodrechte wind
@@ -507,10 +316,7 @@ meewind (tailwind), tegenwind (upwind) of loodrechte wind
 \|𝜃 flight −𝜃wind\| ≥135 upwind
 
 
-**Voorstel**
-Misschien kan ik tegenwind en meewind samenvoegen aangezien de hoornaar telkens heen en terug vliegt?
-
-### Graphs
+## Graphs
 
 ```{r}
 ggplot(data=subset(Flights2_incomplete, !is.na(Wind)), aes(x= Wind, col=Wind, y=ForagingSpeed)) + geom_boxplot()
@@ -520,94 +326,124 @@ ggplot(data=subset(Flights2_incomplete, !is.na(Wind)), aes(x= Windspeed, col=Win
 ```
 
 
-### Model Output
+## Model Output
 
-Taiwind licht significant
+### Anova van Foragingspeed en de 3 windinvloeden
 
-Upwind significant, maar zeer lage R²
+- interpretatie?
+
+```{r}
+windanova<-lmer(ForagingSpeed ~ Wind + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.exclude, data=Flights2_incomplete)
+summary(windanova)
+```
+
+
+### ForagingSpeed vs WindSpeed voor Tailwind dataset
+
+- Licht significant 
+
+- Normality ok!
 
 ```{r}
 data_tailwind<-Flights2_incomplete %>%  filter(Wind!="tailwind")
-data_perpendicular<-Flights2_incomplete %>%  filter(Wind!="perpendicular")
-data_upwind<-Flights2_incomplete %>%  filter(Wind!="upwind")
 
-model_tailwind<-lmer(ForagingSpeed ~ I(Windspeed^2) + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_tailwind)
+model_tailwind<-lmer(ForagingSpeed ~ Windspeed + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_tailwind)
 summary(model_tailwind)
 anova(model_tailwind, ddf="Satterthwaite", type=3)
+
+res<-residuals(model_tailwind)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
 ```
 
+
+### ForagingSpeed vs WindSpeed voor Perpendicular dataset
+
+- Niet significant
+
+- Normality ok!
+
 ```{r}
-model_perpendicular<-lmer(ForagingSpeed ~ I(Windspeed^2) + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_perpendicular)
+data_perpendicular<-Flights2_incomplete %>%  filter(Wind!="perpendicular")
+
+model_perpendicular<-lmer(ForagingSpeed ~ Windspeed + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_perpendicular)
 summary(model_perpendicular)
 anova(model_perpendicular, ddf="Satterthwaite", type=3)
 
+res<-residuals(model_perpendicular)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
 ```
 
+
+### ForagingSpeed vs WindSpeed voor Upwind dataset
+
+- Licht significant
+
+- Normality ok!
+
 ```{r}
-model_upwind<-lmer(ForagingSpeed ~ I(Windspeed^2) + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
+data_upwind<-Flights2_incomplete %>%  filter(Wind!="upwind")
+
+model_upwind<-lmer(ForagingSpeed ~ Windspeed + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
 summary(model_upwind)
 anova(model_upwind, ddf="Satterthwaite", type=3)
+
+res<-residuals(model_upwind)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
 ```
 
 
 
 
 
-## 9) Flight error vs urbanisation (25m, 50m, 100m)
-
-Flight error is the difference between the actual angle from the bait to
-the nest and the flight direction I measured.
 
 
-### Urbanisatietrajecten
 
-#### Graphs
+# 4) ForagingSpeed vs Weight individual
+
+## Graphs
+
+```{r warning=FALSE}
+ggplot(Flights2_incomplete, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+```
+
+## Model Output
+
+- Niet significant
+
+- Normality ok!
 
 ```{r}
-plot28<-ggplot(data=subset(Flights2_incomplete, !is.na(Observer)), aes(x=Traject25m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+model_weight_all<-lmer(ForagingSpeed ~ Weight_ind + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+summary(model_weight_all)
+anova(model_weight_all, ddf="Satterthwaite", type=3)
 
-plot29<-ggplot(data=subset(Flights2_incomplete, !is.na(Observer)), aes(x=Traject50m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x , se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
-
-plot30<-ggplot(data=subset(Flights2_incomplete, !is.na(Observer)), aes(x=Traject100m, y=FlightError)) + geom_point(col="hotpink1")+ geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
-
-ggarrange(plot28, plot29, plot30 + rremove("x.text"), 
-          labels = c("A", "B", "C"),
-          ncol = 2, nrow = 2)
-```
-
-
-#### Model Output
-
-```{r}
-model_errurb25<-lmer(FlightError ~ Traject25m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
-summary(model_errurb25)
-anova(model_errurb25, ddf="Satterthwaite", type=3)
-```
-
-
-```{r}
-model_errurb50<-lmer(FlightError ~ Traject50m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
-summary(model_errurb50)
-anova(model_errurb50, ddf="Satterthwaite", type=3)
-```
-
-
-```{r}
-model_errurb100<-lmer(FlightError ~ Traject100m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
-summary(model_errurb100)
-anova(model_errurb100, ddf="Satterthwaite", type=3)
+res<-residuals(model_weight_all)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
 ```
 
 
 
-## 10) ForagingSpeed vs Urbanisation
 
-### Graphs
+
+
+
+
+# 5) ForagingSpeed vs Urbanisation
+
+## Graphs
 
 Urbanisatiecirkels niet berekend, meteen trajecten genomen want die zijn
 betere maatstaf
 
-#### Alle data
+Telkens voor buffers van 25m, 50m en 100m
 
 ```{r}
 plot31<-ggplot(data=subset(Flights2_incomplete, !is.na(Observer)), aes(x=Traject25m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="slateblue4")
@@ -623,42 +459,54 @@ ggarrange(plot31, plot32, plot33 + rremove("x.text"),
 
 
 
-### Model Output
+## Model Output
 
-**All data**
-All significant
+### 25m
+
+- Hoogsignificant
+
+- Normality niet ok!
 
 ```{r}
-model_urb25<-lmer(ForagingSpeed ~ Traject25m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
+model_urb25<-lmer(ForagingSpeed ~ Traject25m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
 summary(model_urb25)
 anova(model_urb25, ddf="Satterthwaite", type=3)
-```
 
-
-```{r}
-model_urb50<-lmer(ForagingSpeed ~ Traject50m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
-summary(model_urb50)
-anova(model_urb50, ddf="Satterthwaite", type=3)
-```
-
-
-```{r}
-model_urb100<-lmer(ForagingSpeed ~ Traject100m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
-summary(model_urb100)
-anova(model_urb100, ddf="Satterthwaite", type=3)
-```
-
-```{r}
 res<-residuals(model_urb25)
 shapiro.test(res)
 qqnorm(res)
 qqline(res)
 
+```
+
+
+### 50m
+
+- Hoogsignificant
+
+- Normality niet ok!
+
+```{r}
+model_urb50<-lmer(ForagingSpeed ~ Traject50m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+summary(model_urb50)
+anova(model_urb50, ddf="Satterthwaite", type=3)
+
 res<-residuals(model_urb50)
 shapiro.test(res)
 qqnorm(res)
 qqline(res)
+```
 
+### 100m
+
+- Hoogsignificant
+
+- Normality niet ok!
+
+```{r}
+model_urb100<-lmer(ForagingSpeed ~ Traject100m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+summary(model_urb100)
+anova(model_urb100, ddf="Satterthwaite", type=3)
 res<-residuals(model_urb100)
 shapiro.test(res)
 qqnorm(res)
@@ -671,103 +519,102 @@ qqline(res)
 
 
 
-## 11) ForagingSpeed vs Temperatuur + Urbanisation
 
-Aangezien temperatuur en urbanisatie de beste predictoren zijn kunnen we
-ze eens samen in een model steken.
+# 6) Flight error vs urbanisation (25m, 50m, 100m)
+
+Flight error is the difference between the actual angle from the bait to
+the nest and the flight direction I measured.
+
+
+## Graphs
 
 ```{r}
-x <- Flights2_incomplete$Temperature
-y <- Flights2_incomplete$Traject100m
-z <- Flights2_incomplete$ForagingSpeed
+plot28<-ggplot(data=subset(Flights2_incomplete, !is.na(Observer)), aes(x=Traject25m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
 
-fit <- lm(z ~ x + y, na.action=na.exclude)
-x.pred <- seq(min(x[!is.na(x)]), max(x[!is.na(x)]), length.out = 20)
-y.pred <- seq(min(y[!is.na(y)]), max(y[!is.na(y)]), length.out = 20)
-xy <- expand.grid( x = x.pred, y = y.pred)
-z.pred <- matrix(predict(fit, newdata = xy), 
-                 nrow = 20, ncol = 20)
-fitpoints <- predict(fit)
+plot29<-ggplot(data=subset(Flights2_incomplete, !is.na(Observer)), aes(x=Traject50m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x , se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
 
-scatter3D(x, y, z, pch = 19, cex = 0.6, colvar=FALSE, col="dodgerblue3", theta = 210, phi = 10, bty="u", col.panel ="grey93", expand =0.4, col.grid = "white", xlab = "Temperature", ylab = "Urbanisation (Traject100m)", zlab = "Flight Speed", surf = list(x = x.pred, y = y.pred, z = z.pred,  
-facets = TRUE, col=ramp.col(col = c("dodgerblue4", "seagreen2"), n = 100, alpha=0.8), fit = fitpoints, border="black"),main = "Flight Speed vs Temperature + Urbanisation")
+plot30<-ggplot(data=subset(Flights2_incomplete, !is.na(Observer)), aes(x=Traject100m, y=FlightError)) + geom_point(col="hotpink1")+ geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+
+ggarrange(plot28, plot29, plot30 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 2, nrow = 2)
+```
+
+
+## Model Output
+
+ - Allemaal niet significant
+ 
+ - Allemaal normality niet ok!
+
+```{r}
+model_errurb25<-lmer(FlightError ~ Traject25m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+summary(model_errurb25)
+anova(model_errurb25, ddf="Satterthwaite", type=3)
+
+model_errurb50<-lmer(FlightError ~ Traject50m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+summary(model_errurb50)
+anova(model_errurb50, ddf="Satterthwaite", type=3)
+
+model_errurb100<-lmer(FlightError ~ Traject100m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+summary(model_errurb100)
+anova(model_errurb100, ddf="Satterthwaite", type=3)
+
+res<-residuals(model_urb25)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+res<-residuals(model_urb50)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+res<-residuals(model_urb100)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
 ```
 
 
 
 
-```{r}
-model_tempurb25<-lmer(ForagingSpeed ~ Temperature + Traject25m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
-summary(model_tempurb25)
-anova(model_tempurb25, ddf="Satterthwaite", type=3)
-```
+
+**Nu verder werken met KMI of eigen gegevens bij model selection?**
 
 
-```{r}
-model_tempurb50<-lmer(ForagingSpeed ~ Temperature + Traject50m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
-summary(model_tempurb50)
-anova(model_tempurb50, ddf="Satterthwaite", type=3)
-```
 
-
-```{r}
-model_tempurb100<-lmer(ForagingSpeed ~ Temperature + Traject100m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=data_upwind)
-summary(model_tempurb100)
-anova(model_tempurb100, ddf="Satterthwaite", type=3)
-```
 
 # Model Selection 
 
-
-
 ```{r}
-
-fullmodel<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Weight_ind + Temperature + Cloudcoverage + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
-summary(signifmodel)
-anova(signifmodel, ddf="Satterthwaite", type=3)
+fullmodel<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Temperature + Cloudcoverage + Weight_ind + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+summary(fullmodel)
 
 
-
-
-
-
-model1<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Weight_ind + Cloudcoverage + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+model1<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Cloudcoverage + Weight_ind + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+summary(model1)
 
 model2<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Cloudcoverage + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
 summary(model2)
 
+model3<-lmer(ForagingSpeed ~ Traject100m + Windspeed + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+summary(model3)
 ```
 
 ```{r}
 library(cAIC4)
 library(MASS)
 library(AICcmodavg)
-AIC(signifmodel)
-
-aictab(signifmodel, numberOfSavedModels = 5, direction = "backward", trace = TRUE, data = Flights2_incomplete)
-
+AIC(fullmodel)
+AIC(model1)
+AIC(model2)
+AIC(model3)
 ```
 
 
-## Statistische modellen probeersels
-
-```{r}
-# Model kiezen
-library(car)
-library(carData)
-library(leaps)
-select1<-regsubsets(ForagingSpeed ~ Temperature + Cloudcoverage + I(Windspeed^2) + Weight_ind + Traject100m, na.action=na.exclude, data=Flights2_incomplete, nbest=3)
-summary(select1)
-plot(select1, scale="adjr2")
-
-select2<-regsubsets(ForagingSpeed ~ Temperature + Cloudcoverage + Windspeed + Weight_ind + Traject100m +
-Traject100m*Temperature + Traject100m*Cloudcoverage + Traject100m*Windspeed + Traject100m*Weight_ind + Temperature*Cloudcoverage + Temperature*Windspeed + Temperature*Weight_ind + Cloudcoverage*Windspeed + Cloudcoverage*Weight_ind + Windspeed*Weight_ind, na.action=na.exclude, data=Flights2_incomplete, nbest=3)
-summary(select2)
-plot(select2, scale="adjr2")
-```
 
 
-## Multicollinearity check
+
+# Multicollinearity check
 
 ```{r}
 library(ggcorrplot)
@@ -791,15 +638,3 @@ plot(Temperature~Traject100m, data=Flights2_incomplete)
 
 Eerder toeval dat Temperature en Traject100m gecorreleeerd zijn?
 
-
-##PCA
-
-```{r}
-library(vegan)
-library(missMDA)
-library(FactoMineR)
-datapca<-select(Flights2_incomplete, Cloudcoverage, Windspeed, Temperature, Weight_ind, Traject100m)
-nb <- estim_ncpPCA(datapca, scale = TRUE)
-comp<-imputePCA(datapca, ncp=2)
-res<-PCA(comp$completeObs)
-```
