@@ -10,7 +10,7 @@ output:
 # Data inladen
 
 ```{r}
-Flights<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_KMI.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Flights<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_KMI.txt", header=TRUE, sep=" ")
 
 library(ggplot2)
 library(ggpubr)

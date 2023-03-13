@@ -8,9 +8,9 @@ output:
 ---
 
 ```{r}
-Flights_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Flights_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata.txt", header=TRUE, sep=" ")
 
-Shortind_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata_shortind.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Shortind_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata_shortind.txt", header=TRUE, sep=" ")
 
 library(ggplot2)
 library(ggpubr)
