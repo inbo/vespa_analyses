@@ -67,9 +67,8 @@ ggplot(Flights_incomplete, aes(x=Temperature, y=ForagingSpeed)) + geom_point(col
 library(lmerTest)
 library(lme4)
 
-model_temp_all<-lmer(ForagingSpeed ~ Temperature + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights_incomplete)
+model_temp_all<-lm(ForagingSpeed ~ Temperature, na.action=na.omit, data=Flights_incomplete)
 summary(model_temp_all)
-anova(model_temp_all, ddf="Satterthwaite", type=3)
 
 res<-residuals(model_temp_all)
 shapiro.test(res)
