@@ -12,9 +12,14 @@ output:
 ```{r}
 Flights<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_KMI.txt", header=TRUE, sep=" ")
 
+# Outlier vliegsnelheid v 10m/s weglaten
+Flights<-Flights%>%  filter(ID!=195)
+
 library(ggplot2)
 library(ggpubr)
 ```
+
+
 
 
 Volgende datasets zijn gecreëerd:
@@ -333,7 +338,7 @@ qqline(res)
 
 
 
-# Model Selection 
+# Model Selection | random effects
 
 ```{r}
 fullmodel<-lmer(ForagingSpeed ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights)
@@ -349,6 +354,7 @@ summary(model2)
 model3<-lmer(ForagingSpeed ~ Traject100m + WindSpeed_KMI + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights)
 summary(model3)
 ```
+
 ```{r}
 library(cAIC4)
 library(MASS)
@@ -359,3 +365,21 @@ AIC(model2)
 AIC(model3)
 ```
 
+
+
+# Model Selection 
+
+```{r}
+require(stats)
+library(leaps)
+
+full<-lm(ForagingSpeed ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Height + Wind, na.action=na.exclude, data=Flights)
+
+base<-lm(ForagingSpeed ~ 1, na.action=na.exclude, data=Flights)
+
+step(base, scope = list( upper=full, lower=~1 ), direction = "backward", trace=TRUE)
+
+select<-regsubsets(ForagingSpeed ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Height + Wind, na.action=na.exclude, data=Flights,nbest=3)
+plot(select,scale="adjr2")
+
+```
