@@ -21,9 +21,6 @@ Individuals<-read.table(file = "~/GitHub/vespa_analyses/Input/Individuals.txt", 
 ```
 
 ```{r}
-# Overbodige kolommen wegdoen, foutje in excel
-Flights_incomplete<-Flights_incomplete[1:(length(Flights_incomplete)-2)]
-Shortind_incomplete<-Shortind_incomplete[1:(length(Shortind_incomplete)-2)]
 Shortpot_incomplete<-Shortpot_incomplete[1:(length(Shortpot_incomplete)-2)]
 
 #Foerageersnelheid en vliegsnelheid (m/s) toevoegen aan tabel
@@ -46,6 +43,10 @@ Flights_incomplete<-merge(Flights_incomplete, Baits[, c("NestID", "BaitID", "Tra
 Shortind_incomplete<-merge(Shortind_incomplete, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
 Shortpot_incomplete<-merge(Shortpot_incomplete, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
 
+## Urbanisatietrajecten per vliegtijd toevoegen (categorisch)
+Flights_incomplete<-merge(Flights_incomplete, Baits[, c("NestID", "BaitID", "Urbanisation")], by=c("NestID", "BaitID"), all=TRUE)
+Shortind_incomplete<-merge(Shortind_incomplete, Baits[, c("NestID", "BaitID", "Urbanisation")], by=c("NestID", "BaitID"))
+
 ## Gewicht individu per vliegtijd toevoegen
 Flights_incomplete<-merge(Flights_incomplete, Individuals[, c("NestID", "BaitID","ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"), all=TRUE)
 Shortind_incomplete<-merge(Shortind_incomplete, Individuals[, c("NestID", "BaitID", "ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
@@ -65,5 +66,13 @@ Shortpot2_incomplete<-Shortpot_incomplete %>%  filter(NestID!=1)
 # ID maken per individu
 Flights2_incomplete$Individualcode <- paste(Flights2_incomplete$NestID, Flights2_incomplete$BaitID,Flights2_incomplete$ColorInd, sep="_")
 Shortind2_incomplete$Individualcode <- paste(Shortind2_incomplete$NestID, Shortind2_incomplete$BaitID,Shortind2_incomplete$ColorInd, sep="_")
+```
+
+```{r}
+write.table(Flights2_incomplete, "Eigendata.txt", append = FALSE, sep = "\t",
+            row.names = TRUE, col.names = TRUE)
+
+write.table(Shortind2_incomplete, "Eigendata_shortind.txt", append = FALSE, sep = "\t",
+            row.names = TRUE, col.names = TRUE)
 ```
 

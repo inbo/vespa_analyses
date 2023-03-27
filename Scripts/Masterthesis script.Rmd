@@ -8,12 +8,15 @@ output:
 ---
 
 ```{r}
+library(dplyr)
 Flights_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata.txt", header=TRUE, sep=" ")
 Shortind_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata_shortind.txt", header=TRUE, sep=" ")
 
 # Outlier vliegsnelheid v 10m/s weglaten
 Flights_incomplete<-Flights_incomplete %>%  filter(ID!=195)
 Shortind_incomplete<-Shortind_incomplete %>%  filter(ID!=64)
+
+
 
 library(ggplot2)
 library(ggpubr)
@@ -55,6 +58,8 @@ factoren afhangt.
 
 ```{r echo=FALSE, warning=FALSE}
 ggplot(Flights_incomplete, aes(x=Temperature, y=ForagingSpeed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+
+ggplot(Flights_incomplete, aes(x=factor(NestID), y=Temperature)) + geom_boxplot() +theme(axis.text.x = element_blank(), axis.ticks = element_blank())
 ```
 
 ## Model Output
@@ -67,7 +72,7 @@ ggplot(Flights_incomplete, aes(x=Temperature, y=ForagingSpeed)) + geom_point(col
 library(lmerTest)
 library(lme4)
 
-model_temp_all<-lm(ForagingSpeed ~ Temperature, na.action=na.omit, data=Flights_incomplete)
+model_temp_all<-lmer(ForagingSpeed ~ Temperature, na.action=na.omit, data=Flights_incomplete)
 summary(model_temp_all)
 
 res<-residuals(model_temp_all)
