@@ -8,71 +8,76 @@ output: html_document
 ```{r}
 Baits<-read.table(file = "~/GitHub/vespa_analyses/Input/Baits_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
-Flights_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Flights_eigendata<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_eigendata.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
 Nests<-read.table(file = "~/GitHub/vespa_analyses/Input/Nests_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
-Shortind_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortind_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Shortind<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortind.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
-Shortpot_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortpot_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Shortpot<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortpot.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
 Individuals<-read.table(file = "~/GitHub/vespa_analyses/Input/Individuals.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
 ```
 
 ```{r}
-Shortpot_incomplete<-Shortpot_incomplete[1:(length(Shortpot_incomplete)-2)]
+Shortpot<-Shortpot[1:(length(Shortpot)-2)]
 
 #Foerageersnelheid en vliegsnelheid (m/s) toevoegen aan tabel
-Flights_incomplete$test_rule_of_thumb<-Flights_incomplete$Distance/(Flights_incomplete$Flighttime_min*60)
-Shortind_incomplete$test_rule_of_thumb<-Shortind_incomplete$Distance/(Shortind_incomplete$Flighttime_min*60)
-Shortpot_incomplete$test_rule_of_thumb<-Shortpot_incomplete$Distance/(Shortpot_incomplete$Flighttime_min*60)
+Flights_eigendata$test_rule_of_thumb<-Flights_eigendata$Distance/(Flights_eigendata$Flighttime_min*60)
+Shortind$test_rule_of_thumb<-Shortind$Distance/(Shortind$Flighttime_min*60)
+Shortpot$test_rule_of_thumb<-Shortpot$Distance/(Shortpot$Flighttime_min*60)
 
-Flights_incomplete$ForagingSpeed<-Flights_incomplete$Distance*2/(Flights_incomplete$Flighttime_min*60)
-Shortind_incomplete$ForagingSpeed<-Shortind_incomplete$Distance*2/(Shortind_incomplete$Flighttime_min*60)
-Shortpot_incomplete$ForagingSpeed<-Shortpot_incomplete$Distance*2/(Shortpot_incomplete$Flighttime_min*60)
+Flights_eigendata$ForagingSpeed<-Flights_eigendata$Distance*2/(Flights_eigendata$Flighttime_min*60)
+Shortind$ForagingSpeed<-Shortind$Distance*2/(Shortind$Flighttime_min*60)
+Shortpot$ForagingSpeed<-Shortpot$Distance*2/(Shortpot$Flighttime_min*60)
 
 
 ## Urbanisatiecirkels per vliegtijd toevoegen
-Flights_incomplete<-merge(Flights_incomplete, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"), all=TRUE)
-Shortind_incomplete<-merge(Shortind_incomplete, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
-Shortpot_incomplete<-merge(Shortpot_incomplete, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
+Flights_eigendata<-merge(Flights_eigendata, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"), all=TRUE)
+Shortind<-merge(Shortind, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
+Shortpot<-merge(Shortpot, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
 
 ## Urbanisatietrajecten per vliegtijd toevoegen
-Flights_incomplete<-merge(Flights_incomplete, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"), all=TRUE)
-Shortind_incomplete<-merge(Shortind_incomplete, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
-Shortpot_incomplete<-merge(Shortpot_incomplete, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
+Flights_eigendata<-merge(Flights_eigendata, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"), all=TRUE)
+Shortind<-merge(Shortind, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
+Shortpot<-merge(Shortpot, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
 
 ## Urbanisatietrajecten per vliegtijd toevoegen (categorisch)
-Flights_incomplete<-merge(Flights_incomplete, Baits[, c("NestID", "BaitID", "Urbanisation")], by=c("NestID", "BaitID"), all=TRUE)
-Shortind_incomplete<-merge(Shortind_incomplete, Baits[, c("NestID", "BaitID", "Urbanisation")], by=c("NestID", "BaitID"))
+Flights_eigendata<-merge(Flights_eigendata, Baits[, c("NestID", "BaitID", "Urbanisation")], by=c("NestID", "BaitID"), all=TRUE)
+Shortind<-merge(Shortind, Baits[, c("NestID", "BaitID", "Urbanisation")], by=c("NestID", "BaitID"))
 
 ## Gewicht individu per vliegtijd toevoegen
-Flights_incomplete<-merge(Flights_incomplete, Individuals[, c("NestID", "BaitID","ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"), all=TRUE)
-Shortind_incomplete<-merge(Shortind_incomplete, Individuals[, c("NestID", "BaitID", "ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
-Shortpot_incomplete<-merge(Shortpot_incomplete, Individuals[, c("NestID", "BaitID", "ColorInd","Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
+Flights_eigendata<-merge(Flights_eigendata, Individuals[, c("NestID", "BaitID","ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"), all=TRUE)
+Shortind<-merge(Shortind, Individuals[, c("NestID", "BaitID", "ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
+Shortpot<-merge(Shortpot, Individuals[, c("NestID", "BaitID", "ColorInd","Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
 
 ## Nesthoogte per vliegtijd toevoegen
-Flights_incomplete<-merge(Flights_incomplete, Nests[, c("NestID", "Height")], by=c("NestID"), all=TRUE)
-Shortind_incomplete<-merge(Shortind_incomplete, Nests[, c("NestID", "Height")], by=c("NestID"))
-Shortpot_incomplete<-merge(Shortpot_incomplete, Nests[, c("NestID", "Height")], by=c("NestID"))
+Flights_eigendata<-merge(Flights_eigendata, Nests[, c("NestID", "Height")], by=c("NestID"), all=TRUE)
+Shortind<-merge(Shortind, Nests[, c("NestID", "Height")], by=c("NestID"))
+Shortpot<-merge(Shortpot, Nests[, c("NestID", "Height")], by=c("NestID"))
 
 ## Nest in Melle weglaten
 library(dplyr)
-Flights2_incomplete<-Flights_incomplete %>%  filter(NestID!=1)
-Shortind2_incomplete<-Shortind_incomplete %>%  filter(NestID!=1)
-Shortpot2_incomplete<-Shortpot_incomplete %>%  filter(NestID!=1)
+Flights_eigendata<-Flights_eigendata %>%  filter(NestID!=1)
+Shortind<-Shortind %>%  filter(NestID!=1)
+Shortpot2_incomplete<-Shortpot %>%  filter(NestID!=1)
 
 # ID maken per individu
-Flights2_incomplete$Individualcode <- paste(Flights2_incomplete$NestID, Flights2_incomplete$BaitID,Flights2_incomplete$ColorInd, sep="_")
-Shortind2_incomplete$Individualcode <- paste(Shortind2_incomplete$NestID, Shortind2_incomplete$BaitID,Shortind2_incomplete$ColorInd, sep="_")
+Flights_eigendata$Individualcode <- paste(Flights_eigendata$NestID, Flights_eigendata$BaitID,Flights_eigendata$ColorInd, sep="_")
+Shortind$Individualcode <- paste(Shortind$NestID, Shortind$BaitID,Shortind$ColorInd, sep="_")
+
+#ID maken per wiekpot
+Flights_eigendata$Baitcode <- paste(Flights_eigendata$NestID, Flights_eigendata$BaitID, sep="_")
+Shortind$Baitcode <- paste(Shortind$NestID, Shortind$BaitID, sep="_")
+
 ```
 
 ```{r}
-write.table(Flights2_incomplete, "Eigendata.txt", append = FALSE, sep = "\t",
+write.table(Flights_eigendata, "Eigendata.txt", append = FALSE, sep = "\t",
             row.names = TRUE, col.names = TRUE)
 
-write.table(Shortind2_incomplete, "Eigendata_shortind.txt", append = FALSE, sep = "\t",
+write.table(Shortind, "Eigendata_shortind.txt", append = FALSE, sep = "\t",
             row.names = TRUE, col.names = TRUE)
 ```
 
