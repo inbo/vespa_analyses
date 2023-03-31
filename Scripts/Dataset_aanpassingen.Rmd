@@ -10,6 +10,9 @@ Baits<-read.table(file = "~/GitHub/vespa_analyses/Input/Baits_useful.txt", heade
 
 Flights_eigendata<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_eigendata.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
+Flights_KMI<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_KMI.txt", header=TRUE, sep="\t")
+
+
 Nests<-read.table(file = "~/GitHub/vespa_analyses/Input/Nests_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
 Shortind<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortind.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
@@ -27,49 +30,65 @@ Shortpot<-Shortpot[1:(length(Shortpot)-2)]
 Flights_eigendata$test_rule_of_thumb<-Flights_eigendata$Distance/(Flights_eigendata$Flighttime_min*60)
 Shortind$test_rule_of_thumb<-Shortind$Distance/(Shortind$Flighttime_min*60)
 Shortpot$test_rule_of_thumb<-Shortpot$Distance/(Shortpot$Flighttime_min*60)
+Flights_KMI$test_rule_of_thumb<-Flights_KMI$Distance/(Flights_KMI$Flighttime_min*60)
+
 
 Flights_eigendata$ForagingSpeed<-Flights_eigendata$Distance*2/(Flights_eigendata$Flighttime_min*60)
 Shortind$ForagingSpeed<-Shortind$Distance*2/(Shortind$Flighttime_min*60)
 Shortpot$ForagingSpeed<-Shortpot$Distance*2/(Shortpot$Flighttime_min*60)
+Flights_KMI$ForagingSpeed<-Flights_KMI$Distance*2/(Flights_KMI$Flighttime_min*60)
 
 
 ## Urbanisatiecirkels per vliegtijd toevoegen
 Flights_eigendata<-merge(Flights_eigendata, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"), all=TRUE)
 Shortind<-merge(Shortind, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
 Shortpot<-merge(Shortpot, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
+Flights_KMI<-merge(Flights_KMI, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
 
 ## Urbanisatietrajecten per vliegtijd toevoegen
 Flights_eigendata<-merge(Flights_eigendata, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"), all=TRUE)
 Shortind<-merge(Shortind, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
 Shortpot<-merge(Shortpot, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
+Flights_KMI<-merge(Flights_KMI, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
 
 ## Urbanisatietrajecten per vliegtijd toevoegen (categorisch)
 Flights_eigendata<-merge(Flights_eigendata, Baits[, c("NestID", "BaitID", "Urbanisation")], by=c("NestID", "BaitID"), all=TRUE)
 Shortind<-merge(Shortind, Baits[, c("NestID", "BaitID", "Urbanisation")], by=c("NestID", "BaitID"))
+Flights_KMI<-merge(Flights_KMI, Baits[, c("NestID", "BaitID", "Urbanisation")], by=c("NestID", "BaitID"))
+
 
 ## Gewicht individu per vliegtijd toevoegen
 Flights_eigendata<-merge(Flights_eigendata, Individuals[, c("NestID", "BaitID","ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"), all=TRUE)
 Shortind<-merge(Shortind, Individuals[, c("NestID", "BaitID", "ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
 Shortpot<-merge(Shortpot, Individuals[, c("NestID", "BaitID", "ColorInd","Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
+Flights_KMI<-merge(Flights_KMI, Individuals[, c("NestID", "BaitID", "ColorInd","Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
+
 
 ## Nesthoogte per vliegtijd toevoegen
 Flights_eigendata<-merge(Flights_eigendata, Nests[, c("NestID", "Height")], by=c("NestID"), all=TRUE)
 Shortind<-merge(Shortind, Nests[, c("NestID", "Height")], by=c("NestID"))
 Shortpot<-merge(Shortpot, Nests[, c("NestID", "Height")], by=c("NestID"))
+Flights_KMI<-merge(Flights_KMI, Nests[, c("NestID", "Height")], by=c("NestID"))
 
 ## Nest in Melle weglaten
 library(dplyr)
 Flights_eigendata<-Flights_eigendata %>%  filter(NestID!=1)
 Shortind<-Shortind %>%  filter(NestID!=1)
-Shortpot2_incomplete<-Shortpot %>%  filter(NestID!=1)
+Shortpot<-Shortpot %>%  filter(NestID!=1)
+Flights_KMI<-Flights_KMI %>%  filter(NestID!=1)
+
 
 # ID maken per individu
 Flights_eigendata$Individualcode <- paste(Flights_eigendata$NestID, Flights_eigendata$BaitID,Flights_eigendata$ColorInd, sep="_")
 Shortind$Individualcode <- paste(Shortind$NestID, Shortind$BaitID,Shortind$ColorInd, sep="_")
+Shortpot$Individualcode <- paste(Shortpot$NestID, Shortpot$BaitID,Shortpot$ColorInd, sep="_")
+Flights_KMI$Individualcode <- paste(Flights_KMI$NestID, Flights_KMI$BaitID,Flights_KMI$ColorInd, sep="_")
 
 #ID maken per wiekpot
 Flights_eigendata$Baitcode <- paste(Flights_eigendata$NestID, Flights_eigendata$BaitID, sep="_")
 Shortind$Baitcode <- paste(Shortind$NestID, Shortind$BaitID, sep="_")
+Shortpot$Baitcode <- paste(Shortpot$NestID, Shortpot$BaitID, sep="_")
+Flights_KMI$Baitcode <- paste(Flights_KMI$NestID, Flights_KMI$BaitID, sep="_")
 
 ```
 
@@ -79,5 +98,11 @@ write.table(Flights_eigendata, "Eigendata.txt", append = FALSE, sep = "\t",
 
 write.table(Shortind, "Eigendata_shortind.txt", append = FALSE, sep = "\t",
             row.names = TRUE, col.names = TRUE)
+```
+
+```{r}
+write.table(Flights_KMI, "KMIdata.txt", append = FALSE, sep = "\t",
+            row.names = TRUE, col.names = TRUE)
+
 ```
 

@@ -9,8 +9,8 @@ output:
 
 ```{r}
 library(dplyr)
-Flights_eigendata<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata.txt", header=TRUE, sep="\t")
-Shortind<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata_shortind.txt", header=TRUE, sep="\t")
+Eigendata<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata.txt", header=TRUE, sep="\t")
+Eigendata_shortind<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata.txt", header=TRUE, sep="\t")
 
 library(ggplot2)
 library(ggpubr)
@@ -25,8 +25,8 @@ Outlier van Melle ook weggelaten (meting op 2 km niet betrouwbaar)
 
 Volgende datasets zijn gecreëerd:
 
-- Flights_eigendata: dataset met alle vliegtijden en eigen metingen van de weersparameters
-- Shortind: dataset met kortste vliegtijden per individu en eigen metingen van de weersparameters
+- Eigendata: dataset met alle vliegtijden en eigen metingen van de weersparameters
+- Eigendata_shortind: dataset met kortste vliegtijden per individu en eigen metingen van de weersparameters
 
 Voor het model: *Flight time ~ Distance*
 gebruiken we de dataset kortste vliegtijden per individu
@@ -52,17 +52,17 @@ factoren afhangt.
 Van temperatuur ook categorische variabele maken (aanraden van Prof.Vangestel)
 
 ```{r}
-Flights_eigendata$Temperature_cat<-cut(Flights_eigendata$Temperature, c(8,13,17,21,25,29,33))
+Eigendata$Temperature_cat<-cut(Eigendata$Temperature, c(8,13,17,21,25,29,33))
 
-Flights_eigendata$Temperature_cat
-ggplot(data=subset(Flights_eigendata, !is.na(Temperature_cat)), aes(x=Temperature_cat)) + geom_bar(fill="lightcoral")
+Eigendata$Temperature_cat
+ggplot(data=subset(Eigendata, !is.na(Temperature_cat)), aes(x=Temperature_cat)) + geom_bar(fill="lightcoral")
 ```
 
 
 ```{r echo=FALSE, warning=FALSE, fig.width=12}
-ggplot(Flights_eigendata, aes(x=Temperature, y=ForagingSpeed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+ggplot(Eigendata, aes(x=Temperature, y=ForagingSpeed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-ggplot(data=subset(Flights_eigendata, !is.na(Temperature_cat)), aes(x=Temperature_cat, col=Temperature_cat, y=ForagingSpeed)) + geom_boxplot() + ggtitle("All data | eigen metingen")
+ggplot(data=subset(Eigendata, !is.na(Temperature_cat)), aes(x=Temperature_cat, col=Temperature_cat, y=ForagingSpeed)) + geom_boxplot() + ggtitle("All data | eigen metingen")
 
 ```
 
@@ -89,7 +89,7 @@ ggplot(data=subset(Flights_eigendata, !is.na(Temperature_cat)), aes(x=Temperatur
 library(lmerTest)
 library(lme4)
 
-model_temp_cont<-lmer(Flighttime_min ~ Temperature + (1|Individualcode), na.action=na.omit, data=Flights_eigendata, offset= Distance)
+model_temp_cont<-lmer(Flighttime_min ~ Temperature + (1|Individualcode), na.action=na.omit, data=Eigendata, offset= Distance)
 summary(model_temp_cont)
 anova(model_temp_cont, ddf="Satterthwaite", type=3)
 res<-residuals(model_temp_cont)
@@ -97,7 +97,7 @@ shapiro.test(res)
 qqnorm(res)
 qqline(res)
 
-model_temp_cat<-lmer(Flighttime_min ~ Temperature_cat + (1|Individualcode), offset=Distance, data=Flights_eigendata)
+model_temp_cat<-lmer(Flighttime_min ~ Temperature_cat + (1|Individualcode), offset=Distance, data=Eigendata)
 summary(model_temp_cat)
 anova(model_temp_cat, ddf="Satterthwaite", type=3)
 
@@ -121,9 +121,9 @@ library(knitr)
 library(kableExtra)
 library("plot3D")
 
-x <- Flights_eigendata$Distance
-y <- Flights_eigendata$Temperature
-z <- Flights_eigendata$Flighttime_min
+x <- Eigendata$Distance
+y <- Eigendata$Temperature
+z <- Eigendata$Flighttime_min
 
 fit <- lm(z ~ x + y, na.action=na.exclude)
 x.pred <- seq(min(x[!is.na(x)]), max(x[!is.na(x)]), length.out = 20)
@@ -150,7 +150,7 @@ Alle datapunten liggen boven het oppervlak.
 library(plotly)
 library(tidyverse)
 
-FlightsNoNA<-Flights_eigendata %>%  filter(Flighttime_min!="NA")
+FlightsNoNA<-Eigendata %>%  filter(Flighttime_min!="NA")
 FlightsNoNA<-FlightsNoNA %>%  filter(Temperature!="NA")
 fig <- plot_ly(FlightsNoNA, x = ~Distance, y = ~Temperature, z = ~Flighttime_min, size=1)
 fig <- fig %>% add_markers()
@@ -174,7 +174,7 @@ p2
 - Normality niet ok!
 
 ```{r}
-model_tempdist_all<-lmer(Flighttime_min ~ Distance + Temperature + (1|Individualcode), na.action=na.exclude, data=Flights_eigendata)
+model_tempdist_all<-lmer(Flighttime_min ~ Distance + Temperature + (1|Individualcode), na.action=na.exclude, data=Eigendata)
 summary(model_tempdist_all)
 
 res<-residuals(model_tempdist_all)
@@ -193,7 +193,7 @@ qqline(res)
 ## Graphs
 
 ```{r warning=FALSE}
-ggplot(Flights_eigendata, aes(x=Cloudcoverage, y=ForagingSpeed)) + geom_point(color="lightblue") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkblue") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+ggplot(Eigendata, aes(x=Cloudcoverage, y=ForagingSpeed)) + geom_point(color="lightblue") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkblue") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
 ```
 
@@ -205,7 +205,7 @@ ggplot(Flights_eigendata, aes(x=Cloudcoverage, y=ForagingSpeed)) + geom_point(co
 - Normality ok!
 
 ```{r}
-model_cloud_all<-lmer(Flighttime_min ~ Cloudcoverage +  (1|Individualcode), offset=Distance, na.action=na.omit, data=Flights_eigendata)
+model_cloud_all<-lmer(Flighttime_min ~ Cloudcoverage +  (1|Individualcode), offset=Distance, na.action=na.omit, data=Eigendata)
 summary(model_cloud_all)
 anova(model_cloud_all, ddf="Satterthwaite", type=3)
 
@@ -232,9 +232,9 @@ ForagingSpeed \~ Windspeed
 ForagingSpeed \~ Windspeed²
 
 ```{r warning=FALSE}
-plot1<-ggplot(Flights_eigendata, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot1<-ggplot(Eigendata, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot2<-ggplot(Flights_eigendata, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot2<-ggplot(Eigendata, aes(x=Windspeed, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("All data | eigen metingen")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
 
 ggarrange(plot1, plot2 + rremove("x.text"), 
@@ -249,11 +249,11 @@ ggarrange(plot1, plot2 + rremove("x.text"),
 - Beide normality niet ok!
 
 ```{r}
-model_wind_all<-lmer(Flighttime_min ~ Windspeed + (1|Individualcode), offset=Distance, na.action=na.omit, data=Flights_eigendata)
+model_wind_all<-lmer(Flighttime_min ~ Windspeed + (1|Individualcode), offset=Distance, na.action=na.omit, data=Eigendata)
 summary(model_wind_all)
 anova(model_wind_all, ddf="Satterthwaite", type=3)
 
-model_wind2_all<-lmer(Flighttime_min ~ I(Windspeed^2) + (1|Individualcode), offset=Distance, na.action=na.omit, data=Flights_eigendata)
+model_wind2_all<-lmer(Flighttime_min ~ I(Windspeed^2) + (1|Individualcode), offset=Distance, na.action=na.omit, data=Eigendata)
 summary(model_wind2_all)
 anova(model_wind2_all, ddf="Satterthwaite", type=3)
 
@@ -289,12 +289,12 @@ meewind (tailwind), tegenwind (upwind) of loodrechte wind
 ## Graphs
 
 ```{r}
-ggplot(data=subset(Flights_eigendata, !is.na(Wind_flight)), aes(x= Wind_flight, col=Wind_flight, y=ForagingSpeed)) + geom_boxplot()
-ggplot(data=subset(Flights_eigendata, !is.na(Wind_nest)), aes(x= Wind_nest, col=Wind_nest, y=ForagingSpeed)) + geom_boxplot()
+ggplot(data=subset(Eigendata, !is.na(Wind_flight)), aes(x= Wind_flight, col=Wind_flight, y=ForagingSpeed)) + geom_boxplot()
+ggplot(data=subset(Eigendata, !is.na(Wind_nest)), aes(x= Wind_nest, col=Wind_nest, y=ForagingSpeed)) + geom_boxplot()
 
-ggplot(data=subset(Flights_eigendata, !is.na(Wind_flight)), aes(x= Windspeed, col=Wind_flight, y=ForagingSpeed)) + geom_point() + facet_grid(~Wind_flight) + geom_smooth(method="lm", formula = y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95)
+ggplot(data=subset(Eigendata, !is.na(Wind_flight)), aes(x= Windspeed, col=Wind_flight, y=ForagingSpeed)) + geom_point() + facet_grid(~Wind_flight) + geom_smooth(method="lm", formula = y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95)
 
-ggplot(data=subset(Flights_eigendata, !is.na(Wind_nest)), aes(x= Windspeed, col=Wind_nest, y=ForagingSpeed)) + geom_point() + facet_grid(~Wind_nest) + geom_smooth(method="lm", formula = y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95)
+ggplot(data=subset(Eigendata, !is.na(Wind_nest)), aes(x= Windspeed, col=Wind_nest, y=ForagingSpeed)) + geom_point() + facet_grid(~Wind_nest) + geom_smooth(method="lm", formula = y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95)
 
 ```
 
@@ -312,7 +312,7 @@ ggplot(data=subset(Flights_eigendata, !is.na(Wind_nest)), aes(x= Windspeed, col=
 - interpretatie?
 
 ```{r}
-windflightanova<-lmer(Flighttime_min ~ Wind_flight + (1|Individualcode), na.action=na.exclude, offset=Distance, data=Flights_eigendata)
+windflightanova<-lmer(Flighttime_min ~ Wind_flight + (1|Individualcode), na.action=na.exclude, offset=Distance, data=Eigendata)
 summary(windflightanova)
 
 res<-residuals(windflightanova)
@@ -321,7 +321,7 @@ qqnorm(res)
 qqline(res)
 
 
-windnestanova<-lmer(Flighttime_min ~ Wind_nest + (1|Individualcode), na.action=na.exclude, offset=Distance, data=Flights_eigendata)
+windnestanova<-lmer(Flighttime_min ~ Wind_nest + (1|Individualcode), na.action=na.exclude, offset=Distance, data=Eigendata)
 summary(windnestanova)
 
 res<-residuals(windnestanova)
@@ -338,7 +338,7 @@ qqline(res)
 - Normality niet ok!
 
 ```{r}
-data_tailwind<-subset(Flights_eigendata, Wind_flight == "tailwind")
+data_tailwind<-subset(Eigendata, Wind_flight == "tailwind")
 
 model_tailwind<-lmer(Flighttime_min ~ Windspeed + (1|Individualcode), offset= Distance, na.action=na.omit, data=data_tailwind)
 summary(model_tailwind)
@@ -358,7 +358,7 @@ qqline(res)
 - Normality niet ok!
 
 ```{r}
-data_perpendicular<-subset(Flights_eigendata, Wind_flight == "perpendicular")
+data_perpendicular<-subset(Eigendata, Wind_flight == "perpendicular")
 
 model_perpendicular<-lmer(Flighttime_min ~ Windspeed + (1|Individualcode), offset= Distance, na.action=na.omit, data=data_perpendicular)
 summary(model_perpendicular)
@@ -377,7 +377,7 @@ qqline(res)
 - Normality niet ok!
 
 ```{r}
-data_upwind<-subset(Flights_eigendata, Wind_flight == "upwind")
+data_upwind<-subset(Eigendata, Wind_flight == "upwind")
 
 model_upwind<-lmer(Flighttime_min ~ Windspeed + (1|Individualcode), offset=Distance, na.action=na.omit, data=data_upwind)
 summary(model_upwind)
@@ -400,7 +400,7 @@ qqline(res)
 ## Graphs
 
 ```{r warning=FALSE}
-ggplot(Flights_eigendata, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+ggplot(Eigendata, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 ```
 
 ## Model Output
@@ -410,7 +410,7 @@ ggplot(Flights_eigendata, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color
 - Normality ok!
 
 ```{r}
-model_weight_all<-lmer(Flighttime_min ~ Weight_ind + (1|Individualcode), offset=Distance, na.action=na.omit, data=Flights_eigendata)
+model_weight_all<-lmer(Flighttime_min ~ Weight_ind + (1|Individualcode), offset=Distance, na.action=na.omit, data=Eigendata)
 summary(model_weight_all)
 anova(model_weight_all, ddf="Satterthwaite", type=3)
 
@@ -434,27 +434,27 @@ qqline(res)
 Urbanisatiecirkels niet berekend, meteen trajecten genomen want die zijn
 betere maatstaf
 
-Telkens voor buffers van 25m, 50m en 100m
+**Verder werken met 100m buffer!**
 
 ```{r, fig.width=6, fig.height=4}
 # Meting in urbaan gebied met koude temperatuur weglaten (Nest 38 en 39, 3 wiekpotten)
 
-Flights_eigendata2<-Flights_eigendata %>%  filter(Traject100m!=0.504960)
-Flights_eigendata2<-Flights_eigendata2 %>%  filter(Traject100m!=0.496950)
-Flights_eigendata2<-Flights_eigendata2 %>%  filter(Traject100m!=0.411898)
+Eigendata2<-Eigendata %>%  filter(Traject100m!=0.504960)
+Eigendata2<-Eigendata2 %>%  filter(Traject100m!=0.496950)
+Eigendata2<-Eigendata2 %>%  filter(Traject100m!=0.411898)
 
-Shortind2<-Shortind %>%  filter(Traject100m!=0.504960)
-Shortind2<-Shortind2 %>%  filter(Traject100m!=0.496950)
-Shortind2<-Shortind2 %>%  filter(Traject100m!=0.411898)
+Eigendata_shortind2<-Eigendata_shortind %>%  filter(Traject100m!=0.504960)
+Eigendata_shortind2<-Eigendata_shortind2 %>%  filter(Traject100m!=0.496950)
+Eigendata_shortind2<-Eigendata_shortind2 %>%  filter(Traject100m!=0.411898)
 
 
-plot1<-ggplot(data=subset(Flights_eigendata, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_abline(intercept=3.8984, slope= -5.3143, color="slateblue4", linewidth=1) + ggtitle("Met outlier | random effects") + xlim(0, 0.6)
+plot1<-ggplot(data=subset(Eigendata, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_abline(intercept=3.8984, slope= -5.3143, color="slateblue4", linewidth=1) + ggtitle("Met outlier | random effects") + xlim(0, 0.6)
                
-plot2<-ggplot(data=subset(Flights_eigendata, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="slateblue4") + ggtitle("Met outlier | zonder random effects") + xlim(0, 0.6)
+plot2<-ggplot(data=subset(Eigendata, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="slateblue4") + ggtitle("Met outlier | zonder random effects") + xlim(0, 0.6)
 
-plot3<-ggplot(data=subset(Flights_eigendata2, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_abline(intercept=3.7838, slope= -4.0061, color="slateblue4", linewidth=1) + ggtitle("Zonder outlier | random effects") + xlim(0, 0.6)
+plot3<-ggplot(data=subset(Eigendata2, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_abline(intercept=3.7838, slope= -4.0061, color="slateblue4", linewidth=1) + ggtitle("Zonder outlier | random effects") + xlim(0, 0.6)
 
-plot4<-ggplot(data=subset(Flights_eigendata2, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="slateblue4") + ggtitle("Zonder outlier | zonder random effects") + xlim(0, 0.6)
+plot4<-ggplot(data=subset(Eigendata2, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="slateblue4") + ggtitle("Zonder outlier | zonder random effects") + xlim(0, 0.6)
                
 
 ggarrange(plot1, plot2, plot3, plot4 + rremove("x.text"), 
@@ -463,6 +463,13 @@ ggarrange(plot1, plot2, plot3, plot4 + rremove("x.text"),
 ```
 
 **Verder werken met 100m buffer!**
+
+## Graph Temperature vs Urbanisation
+
+```{r}
+ggplot(data=subset(Eigendata, !is.na(Temperature_cat)), aes(x=Temperature_cat, col=Temperature_cat, y=Traject100m)) + geom_boxplot()
+
+```
 
 
 
@@ -476,7 +483,7 @@ ggarrange(plot1, plot2, plot3, plot4 + rremove("x.text"),
 - Normality niet ok!
 
 ```{r}
-model_urb1<-lmer(Flighttime_min ~ Traject100m + (1|Individualcode), offset=Distance, na.action=na.omit, data=Flights_eigendata)
+model_urb1<-lmer(Flighttime_min ~ Traject100m + (1|Individualcode), offset=Distance, na.action=na.omit, data=Eigendata)
 summary(model_urb1)
 anova(model_urb1, ddf="Satterthwaite", type=3)
 
@@ -496,7 +503,7 @@ qqline(res)
 - Normality niet ok!
 
 ```{r}
-model_urb2<-lmer(Flighttime_min ~ Traject100m + (1|Individualcode), offset=Distance, na.action=na.omit, data=Flights_eigendata2)
+model_urb2<-lmer(Flighttime_min ~ Traject100m + (1|Individualcode), offset=Distance, na.action=na.omit, data=Eigendata2)
 summary(model_urb2)
 anova(model_urb2, ddf="Satterthwaite", type=3)
 
@@ -513,13 +520,13 @@ qqline(res)
 # 5.2) ForagingSpeed vs Urbanisation (Categorisch)
 
 ```{r}
-ggplot(data=Flights_eigendata, aes(x=Urbanisation, y=ForagingSpeed, col=Urbanisation)) + geom_boxplot() 
+ggplot(data=Eigendata, aes(x=Urbanisation, y=ForagingSpeed, col=Urbanisation)) + geom_boxplot() 
 ```
 
 
 
 ```{r}
-model_urb_cat<-lmer(Flighttime_min ~ Urbanisation + (1|Individualcode), offset=Distance, na.action=na.omit, data=Flights_eigendata )
+model_urb_cat<-lmer(Flighttime_min ~ Urbanisation + (1|Individualcode), offset=Distance, na.action=na.omit, data=Eigendata )
 summary(model_urb_cat)
 ```
 
@@ -537,11 +544,11 @@ the nest and the flight direction I measured.
 ## Graphs
 
 ```{r}
-plot28<-ggplot(data=subset(Flights_eigendata, !is.na(Observer)), aes(x=Traject25m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+plot28<-ggplot(data=subset(Eigendata, !is.na(Observer)), aes(x=Traject25m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
 
-plot29<-ggplot(data=subset(Flights_eigendata, !is.na(Observer)), aes(x=Traject50m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x , se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+plot29<-ggplot(data=subset(Eigendata, !is.na(Observer)), aes(x=Traject50m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x , se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
 
-plot30<-ggplot(data=subset(Flights_eigendata, !is.na(Observer)), aes(x=Traject100m, y=FlightError)) + geom_point(col="hotpink1")+ geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+plot30<-ggplot(data=subset(Eigendata, !is.na(Observer)), aes(x=Traject100m, y=FlightError)) + geom_point(col="hotpink1")+ geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
 
 ggarrange(plot28, plot29, plot30 + rremove("x.text"), 
           labels = c("A", "B", "C"),
@@ -556,15 +563,15 @@ ggarrange(plot28, plot29, plot30 + rremove("x.text"),
  - Allemaal normality niet ok!
 
 ```{r}
-model_errurb25<-lmer(FlightError ~ Traject25m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights_eigendata)
+model_errurb25<-lmer(FlightError ~ Traject25m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Eigendata)
 summary(model_errurb25)
 anova(model_errurb25, ddf="Satterthwaite", type=3)
 
-model_errurb50<-lmer(FlightError ~ Traject50m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights_eigendata)
+model_errurb50<-lmer(FlightError ~ Traject50m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Eigendata)
 summary(model_errurb50)
 anova(model_errurb50, ddf="Satterthwaite", type=3)
 
-model_errurb100<-lmer(FlightError ~ Traject100m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights_eigendata)
+model_errurb100<-lmer(FlightError ~ Traject100m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Eigendata)
 summary(model_errurb100)
 anova(model_errurb100, ddf="Satterthwaite", type=3)
 
@@ -592,17 +599,17 @@ qqline(res)
 # Model Selection 
 
 ```{r}
-fullmodel<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Temperature + Cloudcoverage + Weight_ind + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights_eigendata)
+fullmodel<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Temperature + Cloudcoverage + Weight_ind + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Eigendata)
 summary(fullmodel)
 
 
-model1<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Cloudcoverage + Weight_ind + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights_eigendata)
+model1<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Cloudcoverage + Weight_ind + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Eigendata)
 summary(model1)
 
-model2<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Cloudcoverage + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights_eigendata)
+model2<-lmer(ForagingSpeed ~ Traject100m + Windspeed + Cloudcoverage + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Eigendata)
 summary(model2)
 
-model3<-lmer(ForagingSpeed ~ Traject100m + Windspeed + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights_eigendata)
+model3<-lmer(ForagingSpeed ~ Traject100m + Windspeed + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Eigendata)
 summary(model3)
 
 res<-residuals(model3)
@@ -631,7 +638,7 @@ AIC(model3)
 library(ggcorrplot)
 library(car)
 
-datacor<-Flights_eigendata[, c("Temperature", "Cloudcoverage", "Windspeed", "Weight_ind", "Traject100m", "NestID")]
+datacor<-Eigendata[, c("Temperature", "Cloudcoverage", "Windspeed", "Weight_ind", "Traject100m", "NestID")]
 source("~/GitHub/vespa_analyses/Input/HighstatLibV10.R") 
 corvif(datacor)
 
@@ -643,15 +650,15 @@ ggcorrplot(cormat, lab= TRUE, type = "lower", ggtheme = ggplot2::theme_gray,
 
 
 ```{r}
-plot(Temperature~Traject100m, xlab="Urbanisation", data=Flights_eigendata)
+plot(Temperature~Traject100m, xlab="Urbanisation", data=Eigendata)
 ```
 
 
 Eerder toeval dat Temperature en Traject100m gecorreleeerd zijn?
 
 ```{r}
-Flights_eigendata$NestID<-as.factor(Flights_eigendata$NestID)
-ggplot(Flights_eigendata, aes(x=NestID, col=NestID, y=Temperature)) + geom_boxplot()
+Eigendata$NestID<-as.factor(Eigendata$NestID)
+ggplot(Eigendata, aes(x=NestID, col=NestID, y=Temperature)) + geom_boxplot()
 ```
 
 
