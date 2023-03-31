@@ -13,6 +13,7 @@ output:
 KMIdata<-read.table(file = "~/GitHub/vespa_analyses/Input/KMIdata.txt", header=TRUE, sep="\t")
 
 # Outlier vliegsnelheid v 10m/s weglaten
+library(dplyr)
 KMIdata<-KMIdata%>%  filter(ID!=195)
 
 library(ggplot2)
@@ -380,4 +381,21 @@ AIC(model1)
 AIC(model2)
 AIC(model3)
 AIC(model4)
+```
+
+
+
+# Multicollinearity check
+
+```{r}
+library(ggcorrplot)
+library(car)
+
+datacor<-KMIdata[ , c("Temperature_KMI", "Cloudcoverage_KMI", "WindSpeed_KMI", "Weight_ind", "Traject100m", "NestID")]
+source("~/GitHub/vespa_analyses/Input/HighstatLibV10.R") 
+corvif(datacor)
+
+cormat <- round(cor(datacor, use = "pairwise.complete.obs"), 2)
+ggcorrplot(cormat, lab= TRUE, type = "lower", ggtheme = ggplot2::theme_gray,
+   colors = c("#6D9EC1", "white", "#E46726"))
 ```
