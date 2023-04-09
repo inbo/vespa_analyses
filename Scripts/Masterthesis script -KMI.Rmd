@@ -66,20 +66,42 @@ ggplot(KMIdata, aes(x=Temperature_KMI, y=ForagingSpeed)) + geom_point(color="lig
 
 ## Model Output
 
+1) Temperature = continuous variable
 
-- Significant!
+- Significant
 
 - Normality niet ok!
+
+
+2) Temperature = discrete variable
+
+- Een aantal klassen significant, interpretatie?
+
+- Normality niet ok!
+
+
+
+**Poisson verdeling ook geprobeerd met glmer maar foutmelding (zie email)**
 
 ```{r}
 library(lmerTest)
 library(lme4)
 
-model_temp_all<-lmer(Flighttime_min ~ Temperature_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model_temp_all)
+model_temp_cont<-lmer(Flighttime_min ~ Temperature_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model_temp_cont)
 
 
-res<-residuals(model_temp_all)
+res<-residuals(model_temp_cont)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+
+
+model_temp_cat<-lmer(Flighttime_min ~ Temperature_cat + (1|Individualcode), offset=Distance, data=KMIdata)
+summary(model_temp_cat)
+anova(model_temp_cat, ddf="Satterthwaite", type=3)
+
+res<-residuals(model_temp_cat)
 shapiro.test(res)
 qqnorm(res)
 qqline(res)
