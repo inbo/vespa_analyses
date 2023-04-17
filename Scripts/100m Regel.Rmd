@@ -11,63 +11,15 @@ output: html_document
 # Data inladen
 
 ```{r}
-Baits<-read.table(file = "~/GitHub/vespa_analyses/Input/Baits_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
-
-Flights_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
-
-Nests<-read.table(file = "~/GitHub/vespa_analyses/Input/Nests_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
-
-Shortind_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortind_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
-
-Shortpot_incomplete<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortpot_incomplete.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
-
-Individuals<-read.table(file = "~/GitHub/vespa_analyses/Input/Individuals.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
-
-```
-
-
-# Aanpassingen datasets
-
-```{r}
-# Overbodige kolommen wegdoen, foutje in excel
-Flights_incomplete<-Flights_incomplete[1:(length(Flights_incomplete)-2)]
-Shortind_incomplete<-Shortind_incomplete[1:(length(Shortind_incomplete)-2)]
-
-#Foerageersnelheid en vliegsnelheid (m/s) toevoegen aan tabel
-Flights_incomplete$ForagingSpeed<-Flights_incomplete$Distance/(Flights_incomplete$Flighttime_min*60)
-Shortind_incomplete$ForagingSpeed<-Shortind_incomplete$Distance/(Shortind_incomplete$Flighttime_min*60)
-
-Flights_incomplete$FlightSpeed<-Flights_incomplete$Distance*2/(Flights_incomplete$Flighttime_min*60)
-Shortind_incomplete$FlightSpeed<-Shortind_incomplete$Distance*2/(Shortind_incomplete$Flighttime_min*60)
-
-## Nesthoogte per vliegtijd toevoegen
-Flights_incomplete<-merge(Flights_incomplete, Nests[, c("NestID", "Height")], by=c("NestID"), all=TRUE)
-Shortind_incomplete<-merge(Shortind_incomplete, Nests[, c("NestID", "Height")], by=c("NestID"))
-Shortpot_incomplete<-merge(Shortpot_incomplete, Nests[, c("NestID", "Height")], by=c("NestID"))
-
-
 library(dplyr)
+Eigendata<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata.txt", header=TRUE, sep="\t")
+Eigendata_shortind<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata_shortind.txt", header=TRUE, sep="\t")
+
 library(ggplot2)
 library(ggpubr)
-library(lmerTest)
-library(lme4)
-
 ```
 
-# Datapunten op 2km weglaten
 
-
-**In de statistische modellen gaan we verder met de dataset zonder de outliers in Melle**
-
-
-```{r}
-Flights2_incomplete<-Flights_incomplete %>%  filter(NestID!=1)
-Shortind2_incomplete<-Shortind_incomplete %>%  filter(NestID!=1)
-
-# ID maken per individu
-Flights2_incomplete$Individualcode <- paste(Flights2_incomplete$NestID, Flights2_incomplete$BaitID,Flights2_incomplete$ColorInd, sep="_")
-Shortind2_incomplete$Individualcode <- paste(Shortind2_incomplete$NestID, Shortind2_incomplete$BaitID,Shortind2_incomplete$ColorInd, sep="_")
-```
 
 
 
@@ -84,16 +36,11 @@ nest" voor.
 **Groene lijn** stelt de regressielijn voor.
 
 ```{r echo=FALSE, warning=FALSE}
-plot1<-ggplot(Flights2_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=TRUE, level=0.95, color="darkcyan")+  ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10)) + xlim(0,2100)
+ggplot(Eigendata, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=TRUE, level=0.95, color="darkcyan")+  ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10)) + xlim(0,2100)
 
-plot2<-ggplot(Shortind2_incomplete, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=TRUE, level=0.95, color="darkcyan") +  ggtitle("Shortest per ind.")+ theme(plot.title = element_text(hjust = 0.5, size=10)) + xlim(0,2100)+ ylim(0,21)
+ggplot(Eigendata_shortind, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=0.9) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=0.8) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=TRUE, level=0.95, color="darkcyan") +  ggtitle("Shortest per ind.")+ theme(plot.title = element_text(hjust = 0.5, size=10)) + xlim(0,2100)+ ylim(0,21)
 
-
-ggarrange(plot1, plot2 + rremove("x.text"), 
-          labels = c("A", "B"),
-          ncol = 2, nrow = 1)
 ```
-**IJking op de x-as rechts is weg? Hoe oplossen?**
 
 
 
@@ -103,16 +50,14 @@ ggarrange(plot1, plot2 + rremove("x.text"),
 
 **Voor alle data**
 
-Variatie tussen de *waarnemers* bleek verwaarloosbaar(0). 
-Variatie tussen de *nesten* bleek het hoogste (1,6563)
-
 ```{r warning=FALSE}
 # Mixed model, Observer, Nest en Individuele variatie in rekening brengen
-Flights2_incomplete$NestID<-as.factor(Flights2_incomplete$NestID)
-Flights2_incomplete$BaitID<-as.factor(Flights2_incomplete$BaitID)
+Eigendata$NestID<-as.factor(Eigendata$NestID)
+Eigendata$BaitID<-as.factor(Eigendata$BaitID)
 
-
-model_dist_all<-lmer(Flighttime_min ~ Distance + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), data=Flights2_incomplete)
+library(lme4)
+library(lmerTest)
+model_dist_all<-lmer(Flighttime_min ~ Distance + (1|Individualcode), data=Eigendata)
 summary(model_dist_all)
 anova(model_dist_all, ddf="Satterthwaite", type=3)
 ```
@@ -120,16 +65,13 @@ anova(model_dist_all, ddf="Satterthwaite", type=3)
 
 **Shortest per individual**
 
-Variatie tussen de *waarnemers* bleek verwaarloosbaar(0). 
-Variatie tussen de *nesten* (0.30375)
 
 ```{r warning=FALSE}
-Shortind2_incomplete$NestID<-as.factor(Shortind2_incomplete$NestID)
-Shortind2_incomplete$BaitID<-as.factor(Shortind2_incomplete$BaitID)
+Eigendata_shortind$NestID<-as.factor(Eigendata_shortind$NestID)
+Eigendata_shortind$BaitID<-as.factor(Eigendata_shortind$BaitID)
 
-model_dist_ind<-lmer(Flighttime_min ~ Distance + (1|NestID) + (1|NestID:BaitID), data=Shortind2_incomplete)
+model_dist_ind<-lm(Flighttime_min ~ Distance, data=Eigendata_shortind)
 summary(model_dist_ind)
-anova(model_dist_ind, ddf="Satterthwaite", type=3)
 ```
 
 
@@ -139,40 +81,42 @@ anova(model_dist_ind, ddf="Satterthwaite", type=3)
 
 **Voor alle data**
 
-**VRAAG:**Hoe residuals opvragen van een mixed model?
 **VRAAG:**Klopt deze berekening?
 
-Flights2_incomplete$Expected_Time<-Flights2_incomplete$Distance*0.01     ## Expected vliegtijd berekening (oranje)
-Flights2_incomplete$Res<-Flights2_incomplete$Flighttime_min - Flights2_incomplete$Expected_Time    # Residuals berekening van oranje rechte
+```{r warning=FALSE}
+Eigendata$Expected_Time<-Eigendata$Distance*0.01     ## Expected vliegtijd berekening (oranje)
+Eigendata$Res<-Eigendata$Flighttime_min - Eigendata$Expected_Time    # Residuals berekening van oranje rechte
 
-modelOrange<-sum(Flights2_incomplete$Res^2, na.rm= TRUE)   ## squared residuals (oranje)
-modelGreen<-sum(model_dist_all$residuals^2)   ## squared residuals (groen)
+modelOrange<-sum(Eigendata$Res^2, na.rm= TRUE)   ## squared residuals (oranje)
+res<-residuals(model_dist_all)
+modelGreen<-sum(res^2)   ## squared residuals (groen)
 
 
-dfOrange<-length(na.omit(Flights2_incomplete$Distance))-2    # degrees of freedom berekening (obs-interecept -slope)
-dfGreen<-length(na.omit(Flights2_incomplete$Flighttime_min))-2    # degrees of freedom berekening (obs-int. -slope)
+dfOrange<-length(na.omit(Eigendata$Distance))-2    # degrees of freedom berekening (obs-interecept -slope)
+dfGreen<-length(na.omit(Eigendata$Flighttime_min))-2    # degrees of freedom berekening (obs-int. -slope)
 
 Fstat<-((modelOrange-modelGreen)/(dfOrange-dfGreen))/(modelGreen/dfGreen)    # F statistic
 pf(Fstat, dfOrange, dfGreen, lower.tail = FALSE)
-
+```
 
 
 **Shortest per individual** 
 
+```{r warning=FALSE}
+Eigendata_shortind$Expected_Time<-Eigendata_shortind$Distance*0.01     ## Expected vliegtijd berekening (oranje)
+Eigendata_shortind$Res<-Eigendata_shortind$Flighttime_min - Eigendata_shortind$Expected_Time    # Residuals berekening van oranje rechte
 
-Shortind2_incomplete$Expected_Time<-Shortind2_incomplete$Distance*0.01     ## Expected vliegtijd berekening (oranje)
-Shortind2_incomplete$Res<-Shortind2_incomplete$Flighttime_min - Shortind2_incomplete$Expected_Time    # Residuals berekening van oranje rechte
-
-modelOrange<-sum(Shortind2_incomplete$Res^2, na.rm= TRUE)   ## squared residuals (oranje)
-modelGreen<-sum(model_dist_ind$residuals^2)   ## squared residuals (groen)
+modelOrange<-sum(Eigendata_shortind$Res^2, na.rm= TRUE)   ## squared residuals (oranje)
+res<-residuals(model_dist_ind)
+modelGreen<-sum(res^2)   ## squared residuals (groen)
 
 
-dfOrange<-length(na.omit(Shortind2_incomplete$Distance))-2    # degrees of freedom berekening (obs-interecept -slope)
-dfGreen<-length(na.omit(Shortind2_incomplete$Flighttime_min))-2    # degrees of freedom berekening (obs-int. -slope)
+dfOrange<-length(na.omit(Eigendata_shortind$Distance))-2    # degrees of freedom berekening (obs-interecept -slope)
+dfGreen<-length(na.omit(Eigendata_shortind$Flighttime_min))-2    # degrees of freedom berekening (obs-int. -slope)
 
 Fstat<-((modelOrange-modelGreen)/(dfOrange-dfGreen))/(modelGreen/dfGreen)    # F statistic
 pf(Fstat, dfOrange, dfGreen, lower.tail = FALSE)
-
+```
 
 
 
@@ -184,9 +128,9 @@ pf(Fstat, dfOrange, dfGreen, lower.tail = FALSE)
 ## Graphs
 
 ```{r warning=FALSE}
-plot10<-ggplot(Flights2_incomplete, aes(x=Height, y=ForagingSpeed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+plot10<-ggplot(Eigendata, aes(x=Height, y=ForagingSpeed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 
-plot11<-ggplot(Shortind2_incomplete, aes(x=Height, y=ForagingSpeed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
+plot11<-ggplot(Eigendata_shortind, aes(x=Height, y=ForagingSpeed)) + geom_point(color="burlywood3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="chocolate4") + ggtitle("Shortest per ind.") + theme(plot.title = element_text(hjust = 0.5, size=10))
 
 ggarrange(plot10, plot11 + rremove("x.text"), 
           labels = c("A", "B"),
@@ -202,7 +146,7 @@ ggarrange(plot10, plot11 + rremove("x.text"),
 
 
 ```{r}
-model_height_all<-lmer(ForagingSpeed ~ Height + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+model_height_all<-lmer(ForagingSpeed ~ Height + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Eigendata)
 summary(model_height_all)
 anova(model_height_all, ddf="Satterthwaite", type=3)
 
@@ -228,9 +172,9 @@ library(knitr)
 library(kableExtra)
 library("plot3D")
 
-x <- Flights2_incomplete$Distance
-y <- Flights2_incomplete$Height
-z <- Flights2_incomplete$Flighttime_min
+x <- Eigendata$Distance
+y <- Eigendata$Height
+z <- Eigendata$Flighttime_min
 
 fit <- lm(z ~ x + y, na.action=na.exclude)
 x.pred <- seq(min(x[!is.na(x)]), max(x[!is.na(x)]), length.out = 20)
@@ -253,7 +197,7 @@ facets = TRUE, col=ramp.col(col = c("dodgerblue4", "seagreen2"), n = 100, alpha=
  - Assumptions niet ok!
  
 ```{r}
-model_distheight_all<-lm(Flighttime_min ~ Distance + Height , na.action=na.exclude, data=Flights2_incomplete)
+model_distheight_all<-lm(Flighttime_min ~ Distance + Height , na.action=na.exclude, data=Eigendata)
 summary(model_distheight_all)
 
 res<-residuals(model_distheight_all)
@@ -276,7 +220,7 @@ verwachten..
  - Assumptions niet ok!
  
 ```{r}
-model_distheight_ind<-lm(Flighttime_min ~ Distance + Height , na.action=na.exclude, data=Shortind2_incomplete)
+model_distheight_ind<-lm(Flighttime_min ~ Distance + Height , na.action=na.exclude, data=Eigendata_shortind)
 summary(model_distheight_ind)
 
 res<-residuals(model_distheight_ind)
@@ -298,7 +242,7 @@ qqline(res)
 - Assumptions niet ok!
 
 ```{r}
-model_distheight2_all<-lmer(Flighttime_min ~ sqrt(I(Distance^2) + I(Height^2)) + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+model_distheight2_all<-lmer(Flighttime_min ~ sqrt(I(Distance^2) + I(Height^2)) + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Eigendata)
 summary(model_distheight2_all)
 anova(model_distheight2_all, ddf="Satterthwaite", type=3)
 
@@ -320,7 +264,7 @@ qqline(res)
 ## Graphs
 
 ```{r}
-ggplot(Flights2_incomplete, aes(x=Distance, y=FlightError)) + geom_point(color="cadetblue2") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="cadetblue") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+ggplot(Eigendata, aes(x=Distance, y=FlightError)) + geom_point(color="cadetblue2") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="cadetblue") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
 ```
 
 
@@ -334,7 +278,7 @@ ggplot(Flights2_incomplete, aes(x=Distance, y=FlightError)) + geom_point(color="
 library(lmerTest)
 library(lme4)
 
-model_errdist_all<-lmer(FlightError ~ Distance + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Flights2_incomplete)
+model_errdist_all<-lmer(FlightError ~ Distance + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=Eigendata)
 summary(model_errdist_all)
 anova(model_errdist_all, ddf="Satterthwaite", type=3)
 

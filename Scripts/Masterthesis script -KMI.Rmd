@@ -421,3 +421,4 @@ cormat <- round(cor(datacor, use = "pairwise.complete.obs"), 2)
 ggcorrplot(cormat, lab= TRUE, type = "lower", ggtheme = ggplot2::theme_gray,
    colors = c("#6D9EC1", "white", "#E46726"))
 ```
+

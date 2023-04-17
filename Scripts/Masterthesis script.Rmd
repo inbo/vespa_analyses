@@ -10,7 +10,7 @@ output:
 ```{r}
 library(dplyr)
 Eigendata<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata.txt", header=TRUE, sep="\t")
-Eigendata_shortind<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata.txt", header=TRUE, sep="\t")
+Eigendata_shortind<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata_shortind.txt", header=TRUE, sep="\t")
 
 library(ggplot2)
 library(ggpubr)
