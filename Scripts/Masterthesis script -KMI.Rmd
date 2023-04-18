@@ -37,7 +37,11 @@ Hiervoor nemen we telkens de hele dataset, omdat elke meting van deze
 factoren afhangt.
 
 
-**We gaan verder met de dataset zonder de outliers in Melle**
+**Outlier van nest 29, Bait 1, Individu A weggelaten in deze dataset. (600m op 2min lijkt wel heel snel)**
+
+**Outlier van Melle ook weggelaten (meting op 2 km niet betrouwbaar)**
+
+**Meting in Excel script wel nog terug te vinden.**
 
 
 
@@ -53,8 +57,6 @@ Van temperatuur ook categorische variabele maken (aanraden van Prof.Vangestel)
 
 ```{r}
 KMIdata$Temperature_cat<-cut(KMIdata$Temperature, c(8,13,17,21,25,29,33))
-
-KMIdata$Temperature_cat
 ggplot(data=subset(KMIdata, !is.na(Temperature_cat)), aes(x=Temperature_cat)) + geom_bar(fill="lightcoral")
 ```
 
@@ -284,6 +286,8 @@ meewind (tailwind), tegenwind (upwind) of loodrechte wind
 \|𝜃 flight −𝜃wind\| ≥135 upwind
 
 
+Windrichting werd telkens bepaald t.o.v. de vliegrichting (**Wind_flight**) en t.o.v. richting tot het nest (**Wind_nest**). 
+
 
 ## Graphs
 
@@ -373,8 +377,197 @@ qqline(res)
 
 
 
+# 4) ForagingSpeed vs Weight individual
+
+## Graphs
+
+```{r warning=FALSE}
+ggplot(KMIdata, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+```
+
+## Model Output
+
+- Niet significant
+
+- Normality ok!
+
+```{r}
+model_weight_all<-lmer(Flighttime_min ~ Weight_ind + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model_weight_all)
+anova(model_weight_all, ddf="Satterthwaite", type=3)
+
+res<-residuals(model_weight_all)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+```
+
+
+
+
+# 5.1) ForagingSpeed vs Urbanisation (Traject 100m)
+
+## Graphs
+
+Urbanisatiecirkels niet berekend, meteen trajecten genomen want die zijn
+betere maatstaf.
+
+Telkens vergeleken tussen dataset met en zonder mijn meting bij lage temperatuur 
+en hoge urbanisatie in Sint-Amandsberg.
+
+**Verder werken met 100m buffer!**
+
+```{r, fig.width=6, fig.height=4}
+# Meting in urbaan gebied met koude temperatuur weglaten (Nest 38 en 39, 3 wiekpotten)
+
+KMIdata2<-KMIdata %>%  filter(Traject100m!=0.504960)
+KMIdata2<-KMIdata2 %>%  filter(Traject100m!=0.496950)
+KMIdata2<-KMIdata2 %>%  filter(Traject100m!=0.411898)
+
+
+ggplot(data=subset(KMIdata, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_abline(intercept=3.8984, slope= -5.3143, color="slateblue4", linewidth=1) + ggtitle("Met outlier") + xlim(0, 0.6)
+               
+ggplot(data=subset(KMIdata2, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_abline(intercept=3.7838, slope= -4.0061, color="slateblue4", linewidth=1) + ggtitle("Zonder outlier") + xlim(0, 0.6)
+```
+
+
+
+## Graph Temperature vs Urbanisation
+
+Correlatie tussen temperatuur en urbanisatie checken.
+Duidelijk gecorreleerd. 
+Toeval of urban heat island effect?
+
+```{r}
+ggplot(data=subset(KMIdata, !is.na(Temperature_cat)), aes(x=Temperature_cat, col=Temperature_cat, y=Traject100m)) + geom_boxplot()
+
+```
+
+
+
+## Model Output
+
+
+## Met outlier
+
+- Hoogsignificant
+
+- Normality niet ok!
+
+```{r}
+model_urb1<-lmer(Flighttime_min ~ Traject100m + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model_urb1)
+anova(model_urb1, ddf="Satterthwaite", type=3)
+
+res<-residuals(model_urb1)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+```
+
+
+
+
+## Zonder outlier
+
+- Significant
+
+- Normality niet ok!
+
+```{r}
+model_urb2<-lmer(Flighttime_min ~ Traject100m + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata2)
+summary(model_urb2)
+anova(model_urb2, ddf="Satterthwaite", type=3)
+
+res<-residuals(model_urb2)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+```
+
+
+
+
+
+# 5.2) ForagingSpeed vs Urbanisation (Categorisch)
+
+**TO DO: categorieën in het Engels zetten**
+
+```{r}
+ggplot(data=KMIdata, aes(x=Urbanisation, y=ForagingSpeed, col=Urbanisation)) + geom_boxplot() 
+```
+
+
+
+```{r}
+model_urb_cat<-lmer(Flighttime_min ~ Urbanisation + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata )
+summary(model_urb_cat)
+```
+
+
+
+
+
+
+# 6) Flight error vs urbanisation (25m, 50m, 100m)
+
+Flight error is the difference between the actual angle from the bait to
+the nest and the flight direction I measured.
+
+
+## Graphs
+
+```{r}
+plot28<-ggplot(data=subset(KMIdata, !is.na(Observer)), aes(x=Traject25m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+
+plot29<-ggplot(data=subset(KMIdata, !is.na(Observer)), aes(x=Traject50m, y=FlightError)) + geom_point(col="hotpink1") + geom_smooth(method="lm", formula =y ~ x , se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+
+plot30<-ggplot(data=subset(KMIdata, !is.na(Observer)), aes(x=Traject100m, y=FlightError)) + geom_point(col="hotpink1")+ geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="violetred4")
+
+ggarrange(plot28, plot29, plot30 + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 2, nrow = 2)
+```
+
+
+## Model Output
+
+ - Allemaal niet significant
+ 
+ - Allemaal normality niet ok!
+
+```{r}
+model_errurb25<-lmer(FlightError ~ Traject25m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model_errurb25)
+anova(model_errurb25, ddf="Satterthwaite", type=3)
+
+model_errurb50<-lmer(FlightError ~ Traject50m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model_errurb50)
+anova(model_errurb50, ddf="Satterthwaite", type=3)
+
+model_errurb100<-lmer(FlightError ~ Traject100m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model_errurb100)
+anova(model_errurb100, ddf="Satterthwaite", type=3)
+
+res<-residuals(model_errurb25)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+res<-residuals(model_errurb50)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+res<-residuals(model_errurb100)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+```
+
+
 
 # Model Selection
+
+**Nog zonder interacties**
 
 ```{r}
 fullmodel<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
@@ -408,6 +601,10 @@ AIC(model4)
 
 
 # Multicollinearity check
+
+**PROBLEEM: wanneer ik wil checken voor Baitcode en Individualcode krijg ik foutmelding**
+
+**Hoe kan ik dan een covariantie uitvoeren tussen discrete variabelen?**
 
 ```{r}
 library(ggcorrplot)
