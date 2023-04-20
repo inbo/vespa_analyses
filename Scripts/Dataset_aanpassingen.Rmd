@@ -70,12 +70,6 @@ Shortind<-merge(Shortind, Nests[, c("NestID", "Height")], by=c("NestID"))
 Shortpot<-merge(Shortpot, Nests[, c("NestID", "Height")], by=c("NestID"))
 Flights_KMI<-merge(Flights_KMI, Nests[, c("NestID", "Height")], by=c("NestID"))
 
-## Nest in Melle weglaten
-library(dplyr)
-Flights_eigendata<-Flights_eigendata %>%  filter(NestID!=1)
-Shortind<-Shortind %>%  filter(NestID!=1)
-Shortpot<-Shortpot %>%  filter(NestID!=1)
-Flights_KMI<-Flights_KMI %>%  filter(NestID!=1)
 
 
 # ID maken per individu
@@ -89,6 +83,57 @@ Flights_eigendata$Baitcode <- paste(Flights_eigendata$NestID, Flights_eigendata$
 Shortind$Baitcode <- paste(Shortind$NestID, Shortind$BaitID, sep="_")
 Shortpot$Baitcode <- paste(Shortpot$NestID, Shortpot$BaitID, sep="_")
 Flights_KMI$Baitcode <- paste(Flights_KMI$NestID, Flights_KMI$BaitID, sep="_")
+
+```
+
+
+#General plots 
+
+```{r}
+ggplot(Flights_eigendata, aes(x=Observer, fill=Observer)) + geom_bar()+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + ylim(0,165)
+
+
+ggplot(Flights_eigendata %>%
+  mutate(Observertype = if_else(Observer=="A", "Researcher", "Volunteer")), aes(x=Observertype, fill=Observertype)) + geom_bar(width=0.5)+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + scale_fill_manual(values=c("dodgerblue4", "dodgerblue3")) + scale_x_discrete(name ="Observer type") + scale_y_continuous(name="Amount of observations", breaks=seq(0,160,50), limits=c(0, 165)) + ggtitle("Amount of observations per type of observer") + theme(plot.title = element_text(hjust = 0.5)) 
+
+
+ggplot(Flights_eigendata, aes(x=factor(NestID))) + geom_bar(width=0.5, fill = "dodgerblue4")+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + ylim(0,140) + scale_x_discrete(name ="NestID") + scale_y_continuous(name="Amount of observations", breaks=seq(0,50,10), limits=c(0, 45)) + ggtitle("Amount of observations per nest") + theme(plot.title = element_text(hjust = 0.5)) 
+
+
+#Plots om verwijderen outliers te verantwoorden
+ggplot(Flights_eigendata, aes(x=factor(NestID), y=Distance)) + geom_point(width=0.5, color = "dodgerblue4")+ scale_x_discrete(name ="NestID") + ggtitle("Distances per nest") + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(name="Distance from bait till the nest (m)", breaks=seq(0,2100,500))
+
+ggplot(Flights_eigendata, aes(x=factor(NestID), y=ForagingSpeed)) + geom_point(width=0.5, color = "dodgerblue4")+ scale_x_discrete(name ="NestID") + ggtitle("Foraging speeds per nest") + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(name="Foraging speed (m/s)", breaks=seq(0,11,1))
+
+
+
+#Temperatuur metingen
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+## Nest in Melle weglaten
+library(dplyr)
+Flights_eigendata<-Flights_eigendata %>%  filter(NestID!=1)
+Shortind<-Shortind %>%  filter(NestID!=1)
+Shortpot<-Shortpot %>%  filter(NestID!=1)
+Flights_KMI<-Flights_KMI %>%  filter(NestID!=1)
+
+
+# Outlier vliegsnelheid v 10m/s weglaten
+Flights_eigendata<-Flights_eigendata%>%  filter(ID!=195)
+Flights_KMI<-Flights_KMI%>%  filter(ID!=195)
 
 ```
 

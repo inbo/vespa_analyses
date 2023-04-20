@@ -12,10 +12,7 @@ output:
 ```{r}
 KMIdata<-read.table(file = "~/GitHub/vespa_analyses/Input/KMIdata.txt", header=TRUE, sep="\t")
 
-# Outlier vliegsnelheid v 10m/s weglaten
 library(dplyr)
-KMIdata<-KMIdata%>%  filter(ID!=195)
-
 library(ggplot2)
 library(ggpubr)
 ```
@@ -567,10 +564,16 @@ qqline(res)
 
 # Model Selection
 
-**Nog zonder interacties**
+**Zonder interacties | Temperatuur als continue variabele**
 
+  - Urbanisatie en Temperatuur komen naar voor als beste predictoren
+  
+  - Estimate van Urbanisatie is super groot?? Klopt iets niet
+  
+  - ook Individual variance is super groot
+  
 ```{r}
-fullmodel<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+fullmodel1<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
 summary(fullmodel)
 
 model1<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
@@ -584,8 +587,135 @@ summary(model3)
 
 model4<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI  + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
 summary(model4)
-
 ```
+
+
+
+**Zonder interacties | Temperatuur als categorische variabele**
+
+  - Urbanisatie en Windspeed komen naar voor als beste predictoren
+  
+  
+```{r}
+fullmodel2<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Cloudcoverage_KMI + Weight_ind + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(fullmodel2)
+
+model5<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model5)
+
+model6<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI + WindSpeed_KMI + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model6)
+
+model7<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI + WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model7)
+
+model8<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI  + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model8)
+```
+
+
+**Met interacties | Temperatuur als continue variabele**
+
+Volgende interacties werden toegevoegd met bijhorende verantwoording voor de keuze
+
+
+  - Urbanisatie * Temperatuur   : urban heat island effect?
+  
+  - Urbanisatie * WindSpeed     : Lagere windsnelheden gemeten tussen de gebouwen?
+  
+  - Urbanisatie * Weight_ind    : Meer / minder resources in de stad en dus effect op gewicht van de werksters
+  
+  - Temperatuur * Cloudcoverage : Koudere temperatuur gemeten bij hogere bewolking
+  
+
+
+Tussen model 12 en 13 gebeurt er iets raars.
+
+Urbanisatie en windspeed komen terug naar voor.
+
+```{r}
+fullmodel3<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*Temperature_KMI + Traject100m*WindSpeed_KMI + Traject100m*Weight_ind + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(fullmodel3)
+
+model9<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*WindSpeed_KMI + Traject100m*Weight_ind + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model9)
+
+model10<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*WindSpeed_KMI + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model10)
+
+model11<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Traject100m*WindSpeed_KMI + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model11)
+
+model12<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Traject100m*WindSpeed_KMI + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model12)
+
+model13<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Traject100m*WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model13)
+
+model14<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model14)
+
+model15<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model15)
+
+model16<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model16)
+```
+
+
+**Met interacties | Temperatuur als categorische variabele**
+
+Dezelfde interacties als hierboven werden toegevoegd.
+  
+
+```{r}
+fullmodel4<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*Temperature_cat + Traject100m*WindSpeed_KMI + Traject100m*Weight_ind + Temperature_cat*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(fullmodel4)
+
+model17<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*Temperature_cat + Traject100m*WindSpeed_KMI + Traject100m*Weight_ind + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model17)
+
+model18<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*WindSpeed_KMI + Traject100m*Weight_ind + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model18)
+
+model19<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model19)
+
+model20<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat  + Weight_ind + Wind_flight + Traject100m*WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model20)
+
+model21<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Weight_ind + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model21)
+
+model22<-lmer(Flighttime_min ~ Traject100m + Temperature_cat +  Weight_ind + Wind_flight +(1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model22)
+
+model23<-lmer(Flighttime_min ~ Traject100m  + Temperature_cat + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model23)
+
+model24<-lmer(Flighttime_min ~ Traject100m +Temperature_cat+ (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(model24)
+```
+# Probeersels
+```{r}
+probeersel1<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI +  Traject100m*Temperature_KMI + Traject100m*WindSpeed_KMI + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(probeersel1)
+
+probeersel2<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI +  Traject100m*Temperature_KMI + Traject100m*WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(probeersel2)
+
+probeersel3<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI +  Traject100m*Temperature_KMI + Traject100m*WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(probeersel3)
+
+probeersel4<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI +  Traject100m*Temperature_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(probeersel4)
+
+probeersel5<-lmer(Flighttime_min ~ Traject100mLM + Temperature_KMI +  Traject100m*Temperature_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+summary(probeersel5)
+```
+
+
+# AIC check
 
 ```{r}
 library(cAIC4)
