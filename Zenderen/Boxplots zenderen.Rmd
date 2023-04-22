@@ -1,0 +1,32 @@
+---
+title: "Zenderen data analyse"
+author: "Heleen Van Ransbeeck"
+date: "13-10-2022"
+output: html_document
+---
+
+```{r}
+library(readxl)
+Zenderen <- read_excel("C:/Users/helee/OneDrive/2e Master Biologie/Masterthesis/Asian hornet data.xlsx", sheet="Radio-telemetry")
+View(Zenderen)
+
+```
+
+```{r}
+library(ggplot2)
+Zenderen$Successful<-as.factor(Zenderen$Successful)
+
+ggplot(Zenderen, aes(x=Successful, y=Tagbody_ratio)) + geom_boxplot(fill="dodgerblue4") + ggtitle("Success radio-telemetry vs tag/body ratio") + scale_x_discrete(name ="Nest found") + scale_y_continuous(name="Tag/body ratio") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13)) 
+
+
+ggplot(Zenderen, aes(x=Successful, y=Temperature)) + geom_boxplot(fill="dodgerblue3") + ggtitle("Success radio-telemetry vs temperature") + scale_x_discrete(name ="Nest found") + scale_y_continuous(name="Temperature (°C)") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13)) 
+
+ggplot(Zenderen, aes(x=Successful, y=Cloudcoverage)) + geom_boxplot(fill="dodgerblue") + ggtitle("Success radio-telemetry vs cloud coverage") + scale_x_discrete(name ="Nest found") + scale_y_continuous(name="Cloud coverage") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13)) 
+
+
+Zenderen$Tag_weight<-as.factor(Zenderen$Tag_weight)
+light<-nrow(subset(Zenderen, Tag_weight == 0.15 & Successful == "Yes"))
+heaviest<-nrow(subset(Zenderen, Tag_weight == 0.28 & Successful == "Yes"))
+heavy<-nrow(subset(Zenderen, Tag_weight == 0.24 & Successful == "Yes"))
+barplot(formula=c(light, heaviest, heavy)~levels(Zenderen$Tag_weight), main="Amount of successes for each tag weight", xlab="Tag weights (g)", ylab="Amount of successes", col=2)
+```

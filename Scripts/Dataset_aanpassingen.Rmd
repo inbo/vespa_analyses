@@ -120,7 +120,6 @@ ggplot(Flights_KMI, aes(x=factor(NestID), y=WindSpeed_KMI)) + geom_point(width=0
 ggplot(Flights_KMI, aes(x=factor(NestID), y=Traject100m)) + geom_point(width=0.5, color = "dodgerblue3")+ scale_x_discrete(name ="NestID") + ggtitle("Urbanisation per nest") + theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=15), axis.text.y=element_text(size=13)) + scale_y_continuous(name="Urbanisation", breaks=seq(0,1,0.1))
 
 ggplot(Flights_eigendata, aes(x=Urban_EN, fill=Urban_EN)) + geom_bar(width=0.5)+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + scale_fill_manual(values=c("dodgerblue4", "dodgerblue3", "dodgerblue2")) + scale_x_discrete(name ="Urbanisation category") + scale_y_continuous(name="Amount of observations", breaks=seq(0,160,50), limits=c(0, 165)) + ggtitle("Amount of observations per type of urbanisation") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13)) 
-
 ```
 
 
@@ -157,6 +156,14 @@ write.table(Shortind, "Eigendata_shortind.txt", append = FALSE, sep = "\t",
 ```{r}
 write.table(Flights_KMI, "KMIdata.txt", append = FALSE, sep = "\t",
             row.names = TRUE, col.names = TRUE)
+
+```
+
+#Hoeveel metingen ontbreken vliegtijd of vliegrichting
+
+```{r}
+sum(is.na(Flights_KMI$Flighttime_min))
+sum(is.na(Flights_KMI$Flightdirection))
 
 ```
 
