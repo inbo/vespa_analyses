@@ -8,14 +8,14 @@ output: html_document
 ```{r}
 Baits<-read.table(file = "~/GitHub/vespa_analyses/Input/Baits_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
-Flights_eigendata<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_eigendata.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Flights_all<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_all.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
 Flights_KMI<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_KMI.txt", header=TRUE, sep="\t")
 
 
 Nests<-read.table(file = "~/GitHub/vespa_analyses/Input/Nests_useful.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
-Shortind<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortind.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
+Flights_shortind<-read.table(file = "~/GitHub/vespa_analyses/Input/Flights_shortind.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
 Shortpot<-read.table(file = "~/GitHub/vespa_analyses/Input/Shortpot.txt", header=TRUE, sep="\t", na.strings=c(""," ","NA"))
 
@@ -27,60 +27,60 @@ Individuals<-read.table(file = "~/GitHub/vespa_analyses/Input/Individuals.txt", 
 Shortpot<-Shortpot[1:(length(Shortpot)-2)]
 
 #Foerageersnelheid en vliegsnelheid (m/s) toevoegen aan tabel
-Flights_eigendata$test_rule_of_thumb<-Flights_eigendata$Distance/(Flights_eigendata$Flighttime_min*60)
-Shortind$test_rule_of_thumb<-Shortind$Distance/(Shortind$Flighttime_min*60)
+Flights_all$test_rule_of_thumb<-Flights_all$Distance/(Flights_all$Flighttime_min*60)
+Flights_shortind$test_rule_of_thumb<-Flights_shortind$Distance/(Flights_shortind$Flighttime_min*60)
 Shortpot$test_rule_of_thumb<-Shortpot$Distance/(Shortpot$Flighttime_min*60)
 Flights_KMI$test_rule_of_thumb<-Flights_KMI$Distance/(Flights_KMI$Flighttime_min*60)
 
 
-Flights_eigendata$ForagingSpeed<-Flights_eigendata$Distance*2/(Flights_eigendata$Flighttime_min*60)
-Shortind$ForagingSpeed<-Shortind$Distance*2/(Shortind$Flighttime_min*60)
+Flights_all$ForagingSpeed<-Flights_all$Distance*2/(Flights_all$Flighttime_min*60)
+Flights_shortind$ForagingSpeed<-Flights_shortind$Distance*2/(Flights_shortind$Flighttime_min*60)
 Shortpot$ForagingSpeed<-Shortpot$Distance*2/(Shortpot$Flighttime_min*60)
 Flights_KMI$ForagingSpeed<-Flights_KMI$Distance*2/(Flights_KMI$Flighttime_min*60)
 
 
 ## Urbanisatiecirkels per vliegtijd toevoegen
-Flights_eigendata<-merge(Flights_eigendata, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"), all=TRUE)
-Shortind<-merge(Shortind, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
+Flights_all<-merge(Flights_all, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"), all=TRUE)
+Flights_shortind<-merge(Flights_shortind, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
 Shortpot<-merge(Shortpot, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
 Flights_KMI<-merge(Flights_KMI, Baits[, c("NestID", "BaitID", "Urbanisation25m", "Urbanisation50m", "Urbanisation100m")], by=c("NestID", "BaitID"))
 
 ## Urbanisatietrajecten per vliegtijd toevoegen
-Flights_eigendata<-merge(Flights_eigendata, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"), all=TRUE)
-Shortind<-merge(Shortind, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
+Flights_all<-merge(Flights_all, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"), all=TRUE)
+Flights_shortind<-merge(Flights_shortind, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
 Shortpot<-merge(Shortpot, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
 Flights_KMI<-merge(Flights_KMI, Baits[, c("NestID", "BaitID", "Traject25m", "Traject50m", "Traject100m")], by=c("NestID", "BaitID"))
 
 ## Urbanisatietrajecten per vliegtijd toevoegen (categorisch)
-Flights_eigendata<-merge(Flights_eigendata, Baits[, c("NestID", "BaitID", "Urbanisation", "Urban_EN")], by=c("NestID", "BaitID"), all=TRUE)
-Shortind<-merge(Shortind, Baits[, c("NestID", "BaitID", "Urbanisation", "Urban_EN")], by=c("NestID", "BaitID"))
+Flights_all<-merge(Flights_all, Baits[, c("NestID", "BaitID", "Urbanisation", "Urban_EN")], by=c("NestID", "BaitID"), all=TRUE)
+Flights_shortind<-merge(Flights_shortind, Baits[, c("NestID", "BaitID", "Urbanisation", "Urban_EN")], by=c("NestID", "BaitID"))
 Flights_KMI<-merge(Flights_KMI, Baits[, c("NestID", "BaitID", "Urbanisation", "Urban_EN")], by=c("NestID", "BaitID"))
 
 
 ## Gewicht individu per vliegtijd toevoegen
-Flights_eigendata<-merge(Flights_eigendata, Individuals[, c("NestID", "BaitID","ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"), all=TRUE)
-Shortind<-merge(Shortind, Individuals[, c("NestID", "BaitID", "ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
+Flights_all<-merge(Flights_all, Individuals[, c("NestID", "BaitID","ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"), all=TRUE)
+Flights_shortind<-merge(Flights_shortind, Individuals[, c("NestID", "BaitID", "ColorInd", "Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
 Shortpot<-merge(Shortpot, Individuals[, c("NestID", "BaitID", "ColorInd","Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
 Flights_KMI<-merge(Flights_KMI, Individuals[, c("NestID", "BaitID", "ColorInd","Weight_ind")], by=c("NestID", "BaitID", "ColorInd"))
 
 
 ## Nesthoogte per vliegtijd toevoegen
-Flights_eigendata<-merge(Flights_eigendata, Nests[, c("NestID", "Height")], by=c("NestID"), all=TRUE)
-Shortind<-merge(Shortind, Nests[, c("NestID", "Height")], by=c("NestID"))
+Flights_all<-merge(Flights_all, Nests[, c("NestID", "Height")], by=c("NestID"), all=TRUE)
+Flights_shortind<-merge(Flights_shortind, Nests[, c("NestID", "Height")], by=c("NestID"))
 Shortpot<-merge(Shortpot, Nests[, c("NestID", "Height")], by=c("NestID"))
 Flights_KMI<-merge(Flights_KMI, Nests[, c("NestID", "Height")], by=c("NestID"))
 
 
 
 # ID maken per individu
-Flights_eigendata$Individualcode <- paste(Flights_eigendata$NestID, Flights_eigendata$BaitID,Flights_eigendata$ColorInd, sep="_")
-Shortind$Individualcode <- paste(Shortind$NestID, Shortind$BaitID,Shortind$ColorInd, sep="_")
+Flights_all$Individualcode <- paste(Flights_all$NestID, Flights_all$BaitID,Flights_all$ColorInd, sep="_")
+Flights_shortind$Individualcode <- paste(Flights_shortind$NestID, Flights_shortind$BaitID,Flights_shortind$ColorInd, sep="_")
 Shortpot$Individualcode <- paste(Shortpot$NestID, Shortpot$BaitID,Shortpot$ColorInd, sep="_")
 Flights_KMI$Individualcode <- paste(Flights_KMI$NestID, Flights_KMI$BaitID,Flights_KMI$ColorInd, sep="_")
 
 #ID maken per wiekpot
-Flights_eigendata$Baitcode <- paste(Flights_eigendata$NestID, Flights_eigendata$BaitID, sep="_")
-Shortind$Baitcode <- paste(Shortind$NestID, Shortind$BaitID, sep="_")
+Flights_all$Baitcode <- paste(Flights_all$NestID, Flights_all$BaitID, sep="_")
+Flights_shortind$Baitcode <- paste(Flights_shortind$NestID, Flights_shortind$BaitID, sep="_")
 Shortpot$Baitcode <- paste(Shortpot$NestID, Shortpot$BaitID, sep="_")
 Flights_KMI$Baitcode <- paste(Flights_KMI$NestID, Flights_KMI$BaitID, sep="_")
 
@@ -92,20 +92,20 @@ Flights_KMI$Baitcode <- paste(Flights_KMI$NestID, Flights_KMI$BaitID, sep="_")
 ```{r}
 library(ggplot2)
 library(dplyr)
-ggplot(Flights_eigendata, aes(x=Observer, fill=Observer)) + geom_bar()+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + ylim(0,165)
+ggplot(Flights_all, aes(x=Observer, fill=Observer)) + geom_bar()+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + ylim(0,165)
 
 
-ggplot(Flights_eigendata %>%
+ggplot(Flights_all %>%
   mutate(Observertype = if_else(Observer=="A", "Researcher", "Volunteer")), aes(x=Observertype, fill=Observertype)) + geom_bar(width=0.5)+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + scale_fill_manual(values=c("dodgerblue4", "dodgerblue3")) + scale_x_discrete(name ="Observer type") + scale_y_continuous(name="Amount of observations", breaks=seq(0,160,50), limits=c(0, 165)) + ggtitle("Amount of observations per type of observer") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13)) 
 
 
-ggplot(Flights_eigendata, aes(x=factor(NestID))) + geom_bar(width=0.5, fill = "dodgerblue4")+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + ylim(0,140) + scale_x_discrete(name ="NestID") + scale_y_continuous(name="Amount of observations", breaks=seq(0,50,10), limits=c(0, 45)) + ggtitle("Amount of observations per nest") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text.y=element_text(size=13))
+ggplot(Flights_all, aes(x=factor(NestID))) + geom_bar(width=0.5, fill = "dodgerblue4")+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + ylim(0,140) + scale_x_discrete(name ="NestID") + scale_y_continuous(name="Amount of observations", breaks=seq(0,50,10), limits=c(0, 45)) + ggtitle("Amount of observations per nest") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text.y=element_text(size=13))
 
 
 #Plots om verwijderen outliers te verantwoorden
-ggplot(Flights_eigendata, aes(x=factor(NestID), y=Distance)) + geom_point(width=0.5, color = "dodgerblue4")+ scale_x_discrete(name ="NestID") + ggtitle("Distances per nest") + theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=15), axis.text.y=element_text(size=13)) + scale_y_continuous(name="Distance from bait till the nest (m)", breaks=seq(0,2100,500))
+ggplot(Flights_all, aes(x=factor(NestID), y=Distance)) + geom_point(width=0.5, color = "dodgerblue4")+ scale_x_discrete(name ="NestID") + ggtitle("Distances per nest") + theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=15), axis.text.y=element_text(size=13)) + scale_y_continuous(name="Distance from bait till the nest (m)", breaks=seq(0,2100,500))
 
-ggplot(Flights_eigendata, aes(x=factor(NestID), y=ForagingSpeed)) + geom_point(width=0.5, color = "dodgerblue4")+ scale_x_discrete(name ="NestID") + ggtitle("Foraging speeds per nest") + theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=15), axis.text.y=element_text(size=13)) + scale_y_continuous(name="Foraging speed (m/s)", breaks=seq(0,11,1))
+ggplot(Flights_all, aes(x=factor(NestID), y=ForagingSpeed)) + geom_point(width=0.5, color = "dodgerblue4")+ scale_x_discrete(name ="NestID") + ggtitle("Foraging speeds per nest") + theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=15), axis.text.y=element_text(size=13)) + scale_y_continuous(name="Foraging speed (m/s)", breaks=seq(0,11,1))
 ```
 
 
@@ -119,7 +119,7 @@ ggplot(Flights_KMI, aes(x=factor(NestID), y=WindSpeed_KMI)) + geom_point(width=0
 #Urbanisatie metingen
 ggplot(Flights_KMI, aes(x=factor(NestID), y=Traject100m)) + geom_point(width=0.5, color = "dodgerblue3")+ scale_x_discrete(name ="NestID") + ggtitle("Urbanisation per nest") + theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=15), axis.text.y=element_text(size=13)) + scale_y_continuous(name="Urbanisation", breaks=seq(0,1,0.1))
 
-ggplot(Flights_eigendata, aes(x=Urban_EN, fill=Urban_EN)) + geom_bar(width=0.5)+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + scale_fill_manual(values=c("dodgerblue4", "dodgerblue3", "dodgerblue2")) + scale_x_discrete(name ="Urbanisation category") + scale_y_continuous(name="Amount of observations", breaks=seq(0,160,50), limits=c(0, 165)) + ggtitle("Amount of observations per type of urbanisation") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13)) 
+ggplot(Flights_all, aes(x=Urban_EN, fill=Urban_EN)) + geom_bar(width=0.5)+ geom_text(stat='count', aes(label=after_stat(count)), vjust=-1) + scale_fill_manual(values=c("dodgerblue4", "dodgerblue3", "dodgerblue2")) + scale_x_discrete(name ="Urbanisation category") + scale_y_continuous(name="Amount of observations", breaks=seq(0,160,50), limits=c(0, 165)) + ggtitle("Amount of observations per type of urbanisation") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13)) 
 ```
 
 
@@ -133,23 +133,23 @@ ggplot(Flights_eigendata, aes(x=Urban_EN, fill=Urban_EN)) + geom_bar(width=0.5)+
 ```{r}
 ## Nest in Melle weglaten
 library(dplyr)
-Flights_eigendata<-Flights_eigendata %>%  filter(NestID!=1)
-Shortind<-Shortind %>%  filter(NestID!=1)
+Flights_all<-Flights_all %>%  filter(NestID!=1)
+Flights_shortind<-Flights_shortind %>%  filter(NestID!=1)
 Shortpot<-Shortpot %>%  filter(NestID!=1)
 Flights_KMI<-Flights_KMI %>%  filter(NestID!=1)
 
 
 # Outlier vliegsnelheid v 10m/s weglaten
-Flights_eigendata<-Flights_eigendata%>%  filter(ID!=195)
+Flights_all<-Flights_all%>%  filter(ID!=195)
 Flights_KMI<-Flights_KMI%>%  filter(ID!=195)
 
 ```
 
 ```{r}
-write.table(Flights_eigendata, "Eigendata.txt", append = FALSE, sep = "\t",
+write.table(Flights_all, "Eigendata.txt", append = FALSE, sep = "\t",
             row.names = TRUE, col.names = TRUE)
 
-write.table(Shortind, "Eigendata_shortind.txt", append = FALSE, sep = "\t",
+write.table(Flights_shortind, "Eigendata_shortind.txt", append = FALSE, sep = "\t",
             row.names = TRUE, col.names = TRUE)
 ```
 
