@@ -10,7 +10,10 @@ output:
 # Data inladen
 
 ```{r}
-KMIdata<-read.table(file = "~/GitHub/vespa_analyses/Input/KMIdata.txt", header=TRUE, sep="\t")
+KMIdata<-read.table(file = "~/GitHub/vespa_analyses/Input/KMIdata.txt", header=TRUE, sep="\t", na.strings=c("","NA"))
+Eigendata<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata.txt", header=TRUE, sep="\t")
+Eigendata_shortind<-read.table(file = "~/GitHub/vespa_analyses/Input/Eigendata_shortind.txt", header=TRUE, sep="\t")
+
 
 library(dplyr)
 library(ggplot2)
@@ -46,9 +49,7 @@ factoren afhangt.
 
 
 
-# 1.1) ForagingSpeed vs Temperature
-
-## Graphs
+# Graph Temperature vs Urbanisation
 
 Van temperatuur ook categorische variabele maken (aanraden van Prof.Vangestel)
 
@@ -57,121 +58,139 @@ KMIdata$Temperature_cat<-cut(KMIdata$Temperature, c(8,13,17,21,25,29,33))
 ggplot(data=subset(KMIdata, !is.na(Temperature_cat)), aes(x=Temperature_cat)) + geom_bar(fill="lightcoral")
 ```
 
+Van urbanisatie categorische variabele maken o.b.v. de percentages.
 
-```{r echo=FALSE, warning=FALSE}
-ggplot(KMIdata, aes(x=Temperature_KMI, y=ForagingSpeed)) + geom_point(color="lightcoral") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="orangered3") + ggtitle("All data KMI")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
+```{r}
+KMIdata$Urbanisation_cat<-cut(KMIdata$Traject100m, c(0,0.2,0.4,0.6))
+ggplot(data=subset(KMIdata, !is.na(Urbanisation_cat)), aes(x=Urbanisation_cat)) + geom_bar(fill="lightcoral")
 ```
 
+```{r}
+ggplot(data=subset(KMIdata, !is.na(Temperature_cat)), aes(x=Temperature_cat, col=Temperature_cat, y=Traject100m)) + geom_boxplot() + guides(color = guide_legend(title = "Temperature ranges (°C)"))+ ggtitle("Urbanisation per range of temperatures") + theme(plot.title = element_text(hjust = 0.5, size=15), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_y_continuous(name="Urbanisation", breaks=seq(0,0.5,0.1))+ scale_color_manual(values=c("#F564E3","darkorange2","gold","seagreen3", "dodgerblue2", "dodgerblue4" ))
+
+
+ggplot(data=KMIdata, aes(x=Temperature_KMI, y=Traject100m)) + geom_point(color="turquoise")
+
+
+ggplot(data=subset(KMIdata, !is.na(Temperature_cat)), aes(x=Urban_EN, col=Urban_EN, y=Temperature_KMI)) + geom_boxplot() + guides(color = guide_legend(title = "Regional urbanisation"))+ ggtitle("Temperature measurements per type of regional urbanisation") + theme(plot.title = element_text(hjust = 0.5, size=15), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_y_continuous(name="Temperature (°C)", breaks=seq(0,30,5))
+
+ggplot(data=subset(KMIdata, !is.na(Urbanisation_cat)), aes(x=Urbanisation_cat, col=Urbanisation_cat, y=Temperature_KMI)) + geom_boxplot() + guides(color = guide_legend(title = "Local urbanisation"))+ ggtitle("Temperature measurements per range of local urbanisation") + theme(plot.title = element_text(hjust = 0.5, size=15), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_y_continuous(name="Temperature (°C)", breaks=seq(0,30,5)) 
+```
+
+
+
+# 1.1) ForagingSpeed vs Temperature
+
+## Graphs
+
+```{r echo=FALSE, warning=FALSE}
+ggplot(subset(KMIdata, !is.na(Urban_EN)), aes(x=Temperature_KMI, y=ForagingSpeed, group=interaction(Urban_EN), col=Urban_EN)) + geom_point() + 
+  geom_abline(intercept=4.33558, slope=-0.01654, color="darkorange", linewidth=1.2) + 
+  geom_abline(intercept=0.8106, slope=0.10926 , color="seagreen3", linewidth=1.2) + 
+  geom_abline(intercept=2.70976, slope=-0.04145, color="dodgerblue2", linewidth=1.2) + guides(color = guide_legend(title = "Regional urbanisation")) + ggtitle("Temperature effect per type of regional urbanisation") + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_x_continuous(name="Temperature (°C)", limits=c(9, 30, 5)) + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,7,5)) + scale_color_manual(values=c("darkorange","seagreen3", "dodgerblue2"))
+
+ggplot(subset(KMIdata, !is.na(Urban_EN)), aes(x=Temperature_KMI, y=ForagingSpeed, group=interaction(Urban_EN), col=Urban_EN)) + geom_point() + 
+  geom_hline(yintercept=3.988, color="darkorange", linewidth=1.2) + 
+  geom_hline(yintercept=2.79, color="seagreen3", linewidth=1.2) + 
+  geom_hline(yintercept=2.055, color="dodgerblue2", linewidth=1.2) + guides(color = guide_legend(title = "Regional urbanisation")) + ggtitle("Temperature effect per type of regional urbanisation") + theme(plot.title = element_text(hjust = 0.5, size=14), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_x_continuous(name="Temperature (°C)", limits=c(9, 30, 5)) + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,7,5)) + scale_color_manual(values=c("darkorange","seagreen3", "dodgerblue2"))
+
+
+ggplot(subset(KMIdata, !is.na(Urbanisation_cat)), aes(x=Temperature_KMI, y=ForagingSpeed, group=interaction(Urbanisation_cat), col=Urbanisation_cat)) + geom_point() + guides(color = guide_legend(title = "Local urbanisation")) +  
+  geom_abline(intercept=2.72205, slope=-0.03435, color="seagreen3", linewidth=1.2) + 
+  geom_abline(intercept=4.71625, slope=-0.29038, color="dodgerblue2", linewidth=1.2) + 
+  geom_abline(intercept=2.21050, slope=0.06496, color="darkorange", linewidth=1.2) + ggtitle("Temperature effect per type of local urbanisation") + theme(plot.title = element_text(hjust = 0.5, size=15), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_x_continuous(name="Temperature (°C)", limits=c(9, 30, 5)) + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,7,5)) + scale_color_manual(    values=c("darkorange","seagreen3","dodgerblue2"))
+```
+
+
 ## Model Output
-
-
-### Distance = offset
-
-1) Temperature = continuous variable
-
-- Significant
-
-- Normality niet ok!
-
-
-2) Temperature = discrete variable
-
-- Een aantal klassen significant, interpretatie?
-
-- Normality niet ok!
 
 
 ```{r}
 library(lmerTest)
 library(lme4)
+library(ggeffects)
 
-model_temp_cont<-lmer(Flighttime_min ~ Temperature_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model_temp_cont)
-res<-residuals(model_temp_cont)
+model_temp_urb<-lmer(ForagingSpeed ~ Temperature_KMI + Urbanisation_cat + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model_temp_urb)
+
+res<-residuals(model_temp_urb)
 shapiro.test(res)
 qqnorm(res)
 qqline(res)
 
 
-model_temp_cat<-lmer(Flighttime_min ~ Temperature_cat + (1|Individualcode), offset=Distance, data=KMIdata)
-summary(model_temp_cat)
-anova(model_temp_cat, ddf="Satterthwaite", type=3)
-res<-residuals(model_temp_cat)
+model_temp_urb_int<-lmer(ForagingSpeed ~ Temperature_KMI + Urbanisation_cat + Temperature_KMI*Urbanisation_cat + (1|Individualcode), na.action=na.omit, data=KMIdata)
+anova(model_temp_urb)
+summary(model_temp_urb_int)
+
+res<-residuals(model_temp_urb_int)
 shapiro.test(res)
 qqnorm(res)
 qqline(res)
+
+anova(model_temp_urb, model_temp_urb_int)
+
+ggpredict(model_temp_urb, c("Temperature_KMI", "Urbanisation_cat")) %>% 
+  plot(add.data=T, limit.range=T) + scale_x_continuous(name="Temperature (°C)") + scale_y_continuous(name="Foraging speed   (m/s)") +
+  scale_color_manual(values=c('darkorange','seagreen3', 'dodgerblue2'))+
+  scale_fill_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), name="fill")+
+  labs(colour="Local urbanisation", title="Temperature effect per local urbanisation level | interaction excluded")
+
+
+# Generate the plot and set the colors
+ggpredict(model_temp_urb_int, c("Temperature_KMI", "Urbanisation_cat")) %>% 
+  plot(add.data=T, limit.range=T) + scale_x_continuous(name="Temperature (°C)") + scale_y_continuous(name="Foraging speed   (m/s)") +
+  scale_color_manual(values=c('darkorange','seagreen3', 'dodgerblue2'))+
+  scale_fill_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), name="fill")+
+  labs(colour="Local urbanisation", title="Temperature effect per local urbanisation level | interaction included")
 ```
-
-
-### Foragingspeed vs temperature | individual = random
-
-1) Temperature = continuous variable
-
-- Niet significant
-
-- Normality niet ok!
-
-
-2) Temperature = discrete variable
-
-- Niet significant
-
-- Normality niet ok!
 
 ```{r}
-model_temp_cont<-lmer(ForagingSpeed ~ Temperature_KMI + (1|Individualcode), na.action=na.omit, data=KMIdata)
-summary(model_temp_cont)
-res<-residuals(model_temp_cont)
+library(lmerTest)
+library(lme4)
+
+model_temp_urb<-lmer(ForagingSpeed ~ Temperature_KMI + Urban_EN + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model_temp_urb)
+anova(model_temp_urb)
+
+res<-residuals(model_temp_urb)
 shapiro.test(res)
 qqnorm(res)
 qqline(res)
 
+model_temp_urb_int<-lmer(ForagingSpeed ~ Temperature_KMI + Urban_EN + Temperature_KMI*Urban_EN + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model_temp_urb_int)
+anova(model_temp_urb_int)
 
-model_temp_cat<-lmer(ForagingSpeed ~ Temperature_cat + (1|Individualcode), data=KMIdata)
-summary(model_temp_cat)
-anova(model_temp_cat, ddf="Satterthwaite", type=3)
-res<-residuals(model_temp_cat)
+res<-residuals(model_temp_urb_int)
 shapiro.test(res)
 qqnorm(res)
 qqline(res)
 
+model_temp<-lmer(ForagingSpeed ~ Temperature_KMI + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model_temp_urb_int)
+
+anova(model_temp_urb, model_temp)
+library(ggeffects)
+
+ggpredict(model_temp_urb, c("Temperature_KMI", "Urban_EN")) %>% 
+  plot(add.data=T, limit.range=T) + scale_x_continuous(name="Temperature (°C)") + scale_y_continuous(name="Foraging speed   (m/s)") +
+  scale_color_manual(values=c('darkorange','seagreen3', 'dodgerblue2'))+
+  scale_fill_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), name="fill")+
+  labs(colour="Regional urbanisation", title="Temperature effect per regional urbanisation level | interaction excluded")
+
+
+ggpredict(model_temp_urb_int, c("Temperature_KMI", "Urban_EN")) %>% 
+  plot(add.data=T, limit.range=T) + scale_x_continuous(name="Temperature (°C)") + scale_y_continuous(name="Foraging speed   (m/s)") +  scale_color_manual(values=c('darkorange','seagreen3', 'dodgerblue2'))+
+  scale_fill_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), name="fill")+
+  labs(colour="Regional urbanisation", title="Temperature effect per regional urbanisation level | interaction included")
 ```
 
 
-### Foragingspeed vs temperature | individual, wiekpot & nest = random
-
-1) Temperature = continuous variable
-
-- Significant
-
-- Normality niet ok!
 
 
-2) Temperature = discrete variable
-
-- 1 klasse significant, interpretatie?
-
-- Normality niet ok!
-
-```{r}
-model_temp_cont<-lmer(ForagingSpeed ~ Temperature_KMI + (1|Individualcode) + (1|Baitcode) + (1|NestID), na.action=na.omit, data=KMIdata)
-summary(model_temp_cont)
-res<-residuals(model_temp_cont)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
 
 
-model_temp_cat<-lmer(ForagingSpeed ~ Temperature_cat + (1|Individualcode) + (1|Baitcode) + (1|NestID), data=KMIdata)
-summary(model_temp_cat)
-anova(model_temp_cat, ddf="Satterthwaite", type=3)
-res<-residuals(model_temp_cat)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-
-```
 
 
 
@@ -223,36 +242,15 @@ facets = TRUE, col=ramp.col(col = c("dodgerblue4", "seagreen2"), n = 100, alpha=
 ## Graphs
 
 ```{r warning=FALSE}
-ggplot(KMIdata, aes(x=Cloudcoverage_KMI, y=ForagingSpeed)) + geom_point(color="lightblue") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkblue") + ggtitle("All data KMI")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+ggplot(KMIdata, aes(x=Cloudcoverage_KMI, y=ForagingSpeed)) + geom_point(color="dodgerblue2") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="dodgerblue4") + theme(plot.title = element_text(hjust = 0.5, size=10)) + theme(plot.title = element_text(hjust = 0.5, size=15), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_x_continuous(name="Cloud coverage", limits=c(0, 1)) + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,7,5))
+
+ggplot(KMIdata, aes(x=Cloudcoverage_KMI, y=ForagingSpeed)) + geom_point(color="dodgerblue2") + geom_abline(intercept=3.1073, slope=-0.3505, color="dodgerblue4", linewidth=1.2) + theme(plot.title = element_text(hjust = 0.5, size=10)) + theme(plot.title = element_text(hjust = 0.5, size=15), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_x_continuous(name="Cloud coverage", limits=c(0, 1)) + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,7,5))
+
 ```
 
 
 ## Model Ouput
 
-
-### Distance = offset
-
-- Licht significant
-
-- Normality niet ok!
-
-```{r}
-model_cloud_all<-lmer(Flighttime_min ~ Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model_cloud_all)
-anova(model_cloud_all, ddf="Satterthwaite", type=3)
-
-res<-residuals(model_cloud_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-
-### Foragingspeed vs temperature | individual = random
-
-- Niet significant
-
-- Normality niet ok!
 
 ```{r}
 model_cloud_all<-lmer(ForagingSpeed ~ Cloudcoverage_KMI + (1|Individualcode), na.action=na.omit, data=KMIdata)
@@ -263,24 +261,10 @@ res<-residuals(model_cloud_all)
 shapiro.test(res)
 qqnorm(res)
 qqline(res)
-```
-
-
-### Foragingspeed vs temperature | individual, wiekpot & nest = random
-
-- Licht significant
-
-- Normality niet ok!
-
-```{r}
-model_cloud_all<-lmer(ForagingSpeed ~ Cloudcoverage_KMI + (1|Individualcode) + (1|Baitcode) + (1|NestID), na.action=na.omit, data=KMIdata)
-summary(model_cloud_all)
-anova(model_cloud_all, ddf="Satterthwaite", type=3)
-
-res<-residuals(model_cloud_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
+library(ggeffects)
+dat <- ggpredict(model_cloud_all, terms = "Cloudcoverage_KMI")
+plot(dat, colors = "dodgerblue2", rawdata=T) +
+    labs(x = "Cloud coverage", y = "Foraging speed (m/s)")
 ```
 
 
@@ -293,7 +277,13 @@ qqline(res)
 
 
 
-# 3.1) ForagingSpeed vs Windspeed
+
+
+
+
+
+
+# 3) ForagingSpeed vs Windspeed | Afhankelijk van de windrichting
 
 ## Graphs
 
@@ -303,106 +293,7 @@ ForagingSpeed \~ Windspeed
 
 ForagingSpeed \~ Windspeed²
 
-```{r warning=FALSE}
-plot19<-ggplot(KMIdata, aes(x=WindSpeed_KMI, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("ForagingSpeed ~ Windspeed  KMI")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-plot22<-ggplot(KMIdata, aes(x=WindSpeed_KMI, y=ForagingSpeed)) + geom_point(color="khaki3") + geom_smooth(method="lm", formula =y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95, color="olivedrab") + ggtitle("ForagingSpeed ~ Windspeed²  KMI")+ theme(plot.title = element_text(hjust = 0.5, size=10))
-
-
-ggarrange(plot19, plot22 + rremove("x.text"), 
-          labels = c("A", "B"),
-          ncol = 2, nrow = 1)
-```
-
-## Model Output
-
-### Distabce = offset
-
-- Beide modellen significant
-
-- Normality voor beiden niet ok!
-
-```{r}
-model_wind_all<-lmer(Flighttime_min ~ WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model_wind_all)
-anova(model_wind_all, ddf="Satterthwaite", type=3)
-res<-residuals(model_wind_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-
-model_wind2_all<-lmer(Flighttime_min ~ I(WindSpeed_KMI^2) + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model_wind2_all)
-anova(model_wind2_all, ddf="Satterthwaite", type=3)
-res<-residuals(model_wind2_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-### Foragingspeed vs temperature | individual = random
-
-- Beide modellen significant
-
-- Normality voor beiden niet ok!
-
-```{r}
-model_wind_all<-lmer(ForagingSpeed ~ WindSpeed_KMI + (1|Individualcode), na.action=na.omit, data=KMIdata)
-summary(model_wind_all)
-res<-residuals(model_wind_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-
-model_wind2_all<-lmer(ForagingSpeed ~ I(WindSpeed_KMI^2) + (1|Individualcode), na.action=na.omit, data=KMIdata)
-summary(model_wind2_all)
-res<-residuals(model_wind2_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-### Foragingspeed vs temperature | individual, wiekpot & nest = random
-
-- Beide modellen significant
-
-- Normality voor beiden ok!
-
-```{r}
-model_wind_all<-lmer(ForagingSpeed ~ WindSpeed_KMI + (1|Individualcode) + (1|Baitcode) + (1|NestID), na.action=na.omit, data=KMIdata)
-summary(model_wind_all)
-res<-residuals(model_wind_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-
-model_wind2_all<-lmer(ForagingSpeed ~ I(WindSpeed_KMI^2) + (1|Individualcode) + (1|Baitcode) + (1|NestID), na.action=na.omit, data=KMIdata)
-summary(model_wind2_all)
-res<-residuals(model_wind2_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 3.2) ForagingSpeed vs Windspeed \| afhankelijk van de windrichting
-
-**Gezien het grote aantal modellen in deze sectie, even afgewacht om telkens de 3 types modellen toe te passen**
-
-**VRAAG: al deze modellen behouden?**
-
-Hiervoor werd telkens voor elke meting nagegaan of de hoornaar met
+Er werd ook telkens voor elke meting nagegaan of de hoornaar met
 meewind (tailwind), tegenwind (upwind) of loodrechte wind
 (perpendicular) te maken had. Dit volgens de formules:
 
@@ -415,95 +306,57 @@ meewind (tailwind), tegenwind (upwind) of loodrechte wind
 
 Windrichting werd telkens bepaald t.o.v. de vliegrichting (**Wind_flight**) en t.o.v. richting tot het nest (**Wind_nest**). 
 
-**VRAAG: Welke van de 2 kiezen?**
+Werken verder met Wind_flight
 
+```{r warning=FALSE}
+ggplot(subset(KMIdata, !is.na(Wind_flight)), aes(x=WindSpeed_KMI, y=ForagingSpeed, group=interaction(Wind_flight), col=Wind_flight)) + geom_point() + ggtitle("Quadratic wind speed effect per wind direction") + geom_smooth(method="lm", formula =y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95) + guides(color = guide_legend(title = "Wind direction")) + scale_color_manual(values=c("seagreen3", "dodgerblue2", "darkorange")) + theme(plot.title = element_text(hjust = 0.5, size=10)) + theme(plot.title = element_text(hjust = 0.5, size=15), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_x_continuous(name="Wind speed (m/s)", limits=c(0, 8)) + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,7,5)) 
 
-## Graphs
+function_perp <- function(x){
+  3.556748 -0.025064*x^2
+}
+function_tail <- function(x){
+  3.460683 -0.036669*x^2
+}
+function_up <- function(x){
+  3.17182 -0.008821*x^2
+}
 
-**TO DO: Lege vakjes Wind_flight NA maken**
+ggplot(subset(KMIdata, !is.na(Wind_flight)), aes(x=WindSpeed_KMI, y=ForagingSpeed, group=interaction(Wind_flight), col=Wind_flight)) + geom_point() + ggtitle("Quadratic wind speed effect per wind direction") + 
+  stat_function(fun = function_perp, size=1.2, color='seagreen3') + 
+  stat_function(fun = function_up, size=1.2, color='darkorange') + 
+  stat_function(fun = function_tail, size=1.2, color='dodgerblue3') + 
 
-```{r}
-ggplot(data=subset(KMIdata, !is.na(Wind_flight)), aes(x= Wind_flight, col=Wind_flight, y=ForagingSpeed)) + geom_boxplot()
+  guides(color = guide_legend(title = "Wind direction")) + scale_color_manual(values=c("seagreen3", "dodgerblue2", "darkorange")) + theme(plot.title = element_text(hjust = 0.5, size=10)) + theme(plot.title = element_text(hjust = 0.5, size=15), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_x_continuous(name="Wind speed (m/s)", limits=c(0, 8)) + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,7,5)) 
 
-ggplot(data=subset(KMIdata, !is.na(Wind_flight)), aes(x= WindSpeed_KMI, col=Wind_flight, y=ForagingSpeed)) + geom_point() + facet_grid(~Wind_flight) + geom_smooth(method="lm", formula = y ~ I(x^2), se=TRUE, fullrange=FALSE, level=0.95)
 
 ```
-
-
 
 ## Model Output
 
-### Anova van Foragingspeed en de 3 windinvloeden
-
-- interpretatie?
 
 ```{r}
-windanova<-lmer(Flighttime_min ~ Wind_flight + (1|Individualcode), offset=Distance, na.action=na.exclude, data=KMIdata)
-summary(windanova)
-
-```
-
-
-### ForagingSpeed vs WindSpeed voor Tailwind dataset
-
-- Significant 
-
-- Normality niet ok!
-
-```{r}
-data_tailwind<-subset(KMIdata, Wind_flight == "tailwind")
-
-model_tailwind<-lmer(Flighttime_min ~ WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=data_tailwind)
-summary(model_tailwind)
-anova(model_tailwind, ddf="Satterthwaite", type=3)
-
-res<-residuals(model_tailwind)
+library(ggeffects)
+model_wind1_all<-lmer(ForagingSpeed ~ I(WindSpeed_KMI^2) + Wind_flight + I(WindSpeed_KMI^2)*Wind_flight + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model_wind1_all)
+anova(model_wind1_all, ddf="Satterthwaite", type=3)
+res<-residuals(model_wind1_all)
 shapiro.test(res)
 qqnorm(res)
 qqline(res)
+
+model_wind2_all<-lmer(ForagingSpeed ~ I(WindSpeed_KMI^2) + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model_wind2_all)
+anova(model_wind2_all, ddf="Satterthwaite", type=3)
+
+ggpredict(model_wind1_all, c("WindSpeed_KMI [all]", "Wind_flight")) %>% 
+  plot(add.data=T) + scale_x_continuous(name="Windspeed (m/s)") + scale_y_continuous(name="Foraging speed   (m/s)", limits=c(0,7,5)) +  scale_color_manual(values=c('darkorange','seagreen3', 'dodgerblue2'))+
+  scale_fill_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), name="fill")+
+  labs(colour="Wind direction", title="Wind speed effect per wind direction")
+
 ```
 
 
-### ForagingSpeed vs WindSpeed voor Perpendicular dataset
 
-- Significant
-
-- Normality niet ok!
-
-```{r}
-data_perpendicular<-subset(KMIdata, Wind_flight == "perpendicular")
-
-
-model_perpendicular<-lmer(Flighttime_min ~ WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=data_perpendicular)
-summary(model_perpendicular)
-anova(model_perpendicular, ddf="Satterthwaite", type=3)
-
-res<-residuals(model_perpendicular)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-
-### ForagingSpeed vs WindSpeed voor Upwind dataset
-
-- Niet significant
-
-- Normality niet ok!
-
-```{r}
-data_upwind<-subset(KMIdata, Wind_flight == "upwind")
-
-
-model_upwind<-lmer(Flighttime_min ~ WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=data_upwind)
-summary(model_upwind)
-anova(model_upwind, ddf="Satterthwaite", type=3)
-
-res<-residuals(model_upwind)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
 
 
 
@@ -523,55 +376,15 @@ qqline(res)
 ## Graphs
 
 ```{r warning=FALSE}
-ggplot(KMIdata, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color="plum") + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="darkorchid4") + ggtitle("All data")+ theme(plot.title = element_text(hjust = 0.5, size=10))
+ggplot(KMIdata, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color="dodgerblue2") + geom_abline(intercept=2.5517, slope=-1.0014, linewidth=1.2, color="dodgerblue4") + theme(plot.title = element_text(hjust = 0.5, size=10)) + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=17), axis.text=element_text(size=13)) + scale_x_continuous(name="Individual weight (g)", limits=c(0.2,0.45)) + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,5)) 
 ```
 
 ## Model Output
 
-### Distance = offset
-
-- Niet significant
-
-- Normality ok!
-
 ```{r}
-model_weight_all<-lmer(Flighttime_min ~ Weight_ind + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+model_weight_all<-lm(ForagingSpeed ~ Weight_ind, na.action=na.omit, data=KMIdata)
 summary(model_weight_all)
-anova(model_weight_all, ddf="Satterthwaite", type=3)
 
-res<-residuals(model_weight_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-
-### Foragingspeed vs temperature | individual = random
-
-- Niet significant
-
-- Normality ok!
-
-```{r}
-model_weight_all<-lmer(ForagingSpeed ~ Weight_ind + (1|Individualcode), na.action=na.omit, data=KMIdata)
-summary(model_weight_all)
-anova(model_weight_all, ddf="Satterthwaite", type=3)
-res<-residuals(model_weight_all)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-### Foragingspeed vs temperature | individual, wiekpot & nest = random
-
-- Niet significant
-
-- Normality ok!
-
-```{r}
-model_weight_all<-lmer(ForagingSpeed ~ Weight_ind + (1|Individualcode) + (1|Baitcode) + (1|NestID), na.action=na.omit, data=KMIdata)
-summary(model_weight_all)
-anova(model_weight_all, ddf="Satterthwaite", type=3)
 res<-residuals(model_weight_all)
 shapiro.test(res)
 qqnorm(res)
@@ -585,224 +398,59 @@ qqline(res)
 
 
 
-
-
-# 5.1) ForagingSpeed vs Urbanisation (Traject 100m)
+# 5) ForagingSpeed vs Urbanisation
 
 ## Graphs
 
 Urbanisatiecirkels niet berekend, meteen trajecten genomen want die zijn
 betere maatstaf.
 
-Telkens vergeleken tussen dataset met en zonder mijn meting bij lage temperatuur 
-en hoge urbanisatie in Sint-Amandsberg.
 
 **Verder werken met 100m buffer!**
 
 ```{r, fig.width=6, fig.height=4}
 # Meting in urbaan gebied met koude temperatuur weglaten (Nest 38 en 39, 3 wiekpotten)
+# Uiteindelijk niet gebruikt, temperatuur als categorische genomen
 
 KMIdata2<-KMIdata %>%  filter(Traject100m!=0.504960)
 KMIdata2<-KMIdata2 %>%  filter(Traject100m!=0.496950)
 KMIdata2<-KMIdata2 %>%  filter(Traject100m!=0.411898)
 
+ggplot(subset(KMIdata, !is.na(Temperature_cat)), aes(x=Traject100m, y=ForagingSpeed, group=interaction(Temperature_cat), col=Temperature_cat)) + geom_point() + guides(color = guide_legend(title = "Temperature (°C)")) + 
+  geom_abline(intercept=3.3446, slope=-3.5265, linewidth=1.2, color='#F564E3')+
+  geom_abline(intercept=3.986, slope=-7.3895, linewidth=1.2, color='darkorange2')+
+  geom_abline(intercept=3.9931, slope=-7.0185, linewidth=1.2, color='gold')+
+  geom_abline(intercept=4.365, slope=-6.3697, linewidth=1.2, color='seagreen3')+
+  geom_abline(intercept=3.457, slope=-2.5486, linewidth=1.2, color='dodgerblue2')+
+  geom_abline(intercept=3.7289, slope=-3.5265, linewidth=1.2, color='dodgerblue4')+
 
-ggplot(data=subset(KMIdata, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_abline(intercept=3.8984, slope= -5.3143, color="slateblue4", linewidth=1) + ggtitle("Met outlier") + xlim(0, 0.6)
-               
-ggplot(data=subset(KMIdata2, !is.na(Observer)), aes(x=Traject100m, y=ForagingSpeed)) + geom_point(col="slateblue1") + geom_abline(intercept=3.7838, slope= -4.0061, color="slateblue4", linewidth=1) + ggtitle("Zonder outlier") + xlim(0, 0.6)
-```
+ggtitle("Local urbanisation effect per temperature category") + theme(plot.title = element_text(hjust = 0.5, size=15), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_x_continuous(name="Local urbanisation", limits=c(0, 0.58, 0.1)) + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,7,5)) + scale_color_manual(values=c("#F564E3","darkorange2","gold","seagreen3", "dodgerblue2", "dodgerblue4" ))
 
+ggplot(subset(KMIdata, !is.na(Temperature_cat)), aes(y=ForagingSpeed, group=interaction(Temperature_cat), col=Temperature_cat)) + geom_boxplot() +  facet_wrap(~Urban_EN)+ guides(color = guide_legend(title = "Temperature (°C)")) + ggtitle("Regional urbanisation effect per temperature category") + theme(plot.title = element_text(hjust = 0.5, size=15), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_x_discrete(name="Regional urbanisation") + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,7,5)) + scale_color_manual(values=c("#F564E3","darkorange2","gold","seagreen3", "dodgerblue2", "dodgerblue4" ))
 
-
-## Graph Temperature vs Urbanisation
-
-Correlatie tussen temperatuur en urbanisatie checken.
-Duidelijk gecorreleerd. 
-Toeval of urban heat island effect?
-
-```{r}
-ggplot(data=subset(KMIdata, !is.na(Temperature_cat)), aes(x=Temperature_cat, col=Temperature_cat, y=Traject100m)) + geom_boxplot()
-ggplot(data=KMIdata, aes(x=Temperature_KMI, y=Traject100m)) + geom_point()
-```
-
-
-
-## Model Output
-
-
-## Met outlier
-
-### Distance = offset
-
-- Hoogsignificant
-
-- Normality niet ok!
-
-```{r}
-model_urb1<-lmer(Flighttime_min ~ Traject100m + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model_urb1)
-anova(model_urb1, ddf="Satterthwaite", type=3)
-
-res<-residuals(model_urb1)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-
-### Foragingspeed vs temperature | individual = random
-
-- Hoogsignificant
-
-- Normality niet ok!
-
-```{r}
-model_urb1<-lmer(ForagingSpeed ~ Traject100m + (1|Individualcode), na.action=na.omit, data=KMIdata)
-summary(model_urb1)
-anova(model_urb1, ddf="Satterthwaite", type=3)
-
-res<-residuals(model_urb1)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-
-
-
-### Foragingspeed vs temperature | individual, wiekpot & nest = random
-
-- Hoogsignificant
-
-- Normality niet ok!
-
-```{r}
-model_urb1<-lmer(ForagingSpeed ~ Traject100m + (1|Individualcode) + (1|Baitcode) + (1|NestID), na.action=na.omit, data=KMIdata)
-summary(model_urb1)
-anova(model_urb1, ddf="Satterthwaite", type=3)
-res<-residuals(model_urb1)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-
-
-
-
-## Zonder outlier
-
-### Distance = offset
-
-- Hoogsignificant
-
-- Normality niet ok!
-
-```{r}
-model_urb1<-lmer(Flighttime_min ~ Traject100m + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata2)
-summary(model_urb1)
-anova(model_urb1, ddf="Satterthwaite", type=3)
-
-res<-residuals(model_urb1)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-
-### Foragingspeed vs temperature | individual = random
-
-- Hoogsignificant
-
-- Normality niet ok!
-
-```{r}
-model_urb1<-lmer(ForagingSpeed ~ Traject100m + (1|Individualcode), na.action=na.omit, data=KMIdata2)
-summary(model_urb1)
-anova(model_urb1, ddf="Satterthwaite", type=3)
-
-res<-residuals(model_urb1)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-
-
-
-### Foragingspeed vs temperature | individual, wiekpot & nest = random
-
-- Licht significant
-
-- Normality ok!
-
-```{r}
-model_urb1<-lmer(ForagingSpeed ~ Traject100m + (1|Individualcode) + (1|Baitcode) + (1|NestID), na.action=na.omit, data=KMIdata2)
-summary(model_urb1)
-anova(model_urb1, ddf="Satterthwaite", type=3)
-res<-residuals(model_urb1)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
-
-
-
-
-
-
-# 5.2) ForagingSpeed vs Urbanisation (Categorisch)
-
-## Graph
-
-```{r}
-ggplot(data=KMIdata, aes(x=Urban_EN, y=ForagingSpeed, col=Urban_EN)) + geom_boxplot() 
 ```
 
 
 ## Model Output
 
-### Distance = offset
-
-- Urban significant, interpretatie?
-
-- Normality niet oke!
 
 ```{r}
-model_urb_cat<-lmer(Flighttime_min ~ Urban_EN + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata )
-summary(model_urb_cat)
-res<-residuals(model_urb_cat)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
+model_urb1<-lmer(ForagingSpeed ~ Traject100m + Temperature_cat + Traject100m*Temperature_cat + (1|Individualcode),  na.action=na.omit, data=KMIdata)
+summary(model_urb1)
+anova(model_urb1, ddf="Satterthwaite", type=3)
 
-### Foragingspeed vs temperature | individual = random
-
-- Alles significant
-
-- Normality niet oke!
-
-```{r}
-model_urb_cat<-lmer(ForagingSpeed ~ Urban_EN + (1|Individualcode), na.action=na.omit, data=KMIdata )
-summary(model_urb_cat)
-res<-residuals(model_urb_cat)
-shapiro.test(res)
-qqnorm(res)
-qqline(res)
-```
+model_urb2<-lmer(ForagingSpeed ~ Traject100m + Temperature_cat  + (1|Individualcode),  na.action=na.omit, data=tempdata)
+summary(model_urb2)
+anova(model_urb1, ddf="Satterthwaite", type=3)
 
 
-### Foragingspeed vs temperature | individual, wiekpot & nest = random
 
-- Alles significant
+model_urb3<-lmer(ForagingSpeed ~ Traject100m  + (1|Individualcode),  na.action=na.omit, data=tempdata)
+summary(model_urb3)
+anova(model_urb1, ddf="Satterthwaite", type=3)
 
-- Normality niet oke!
 
-```{r}
-model_urb_cat<-lmer(ForagingSpeed ~ Urban_EN + (1|Individualcode) + (1|Baitcode) + (1|NestID), na.action=na.omit, data=KMIdata )
-summary(model_urb_cat)
-res<-residuals(model_urb_cat)
+res<-residuals(model_urb1)
 shapiro.test(res)
 qqnorm(res)
 qqline(res)
@@ -837,7 +485,7 @@ ggplot(data=KMIdata, aes(x=Traject100m, y=FlightError)) + geom_point(col="hotpin
  - Normality niet ok!
 
 ```{r}
-model_errurb100<-lmer(FlightError ~ Traject100m + (1|NestID) + (1|NestID:BaitID) + (1|Individualcode), na.action=na.omit, data=KMIdata)
+model_errurb100<-lmer(FlightError ~ Traject100m + (1|Individualcode), na.action=na.omit, data=KMIdata)
 summary(model_errurb100)
 anova(model_errurb100, ddf="Satterthwaite", type=3)
 
@@ -874,189 +522,160 @@ ggplot(data=KMIdata, aes(x=FlightError, y=ForagingSpeed)) + geom_point(col="hotp
 
 
 
-# Model Selection
+# Forward model Selection
 
-**Zonder interacties | Temperatuur als continue variabele**
 
-  - Urbanisatie en Temperatuur komen naar voor als beste predictoren
-  
-  - Estimate van Urbanisatie is super groot?? Klopt iets niet
-  
-  - ook Individual variance is super groot
-  
+# Local urbanisation continuous
+
 ```{r}
-fullmodel1<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+fullmodel1<-lmer(ForagingSpeed ~ Traject100m + I(WindSpeed_KMI^2) + (1|Individualcode), na.action=na.omit, data=KMIdata)
 summary(fullmodel1)
 
-model1<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model1)
+res<-residuals(fullmodel1)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
 
-model2<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model2)
+AIC(fullmodel1)
+```
 
-model3<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI + Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model3)
+```{r}
+fullmodel1_2<-lmer(ForagingSpeed ~ Traject100m*Temperature_cat + I(WindSpeed_KMI^2) + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(fullmodel1_2)
 
-model4<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI  + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model4)
+res<-residuals(fullmodel1_2)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+
+AIC(fullmodel1_2)
+```
+
+```{r}
+fullmodel1_3<-lmer(ForagingSpeed ~ Traject100m + Weight_ind + I(WindSpeed_KMI^2) + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(fullmodel1_3)
+
+res<-residuals(fullmodel1_3)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
+
+AIC(fullmodel1_3)
 ```
 
 
 
-**Zonder interacties | Temperatuur als categorische variabele**
 
-  - Urbanisatie en Windspeed komen naar voor als beste predictoren
-  
-  
+# Local urbanisation discrete
+
 ```{r}
-fullmodel2<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Cloudcoverage_KMI + Weight_ind + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+fullmodel2<-lmer(ForagingSpeed ~ Urbanisation_cat + I(WindSpeed_KMI^2) + (1|Individualcode), na.action=na.omit, data=KMIdata)
 summary(fullmodel2)
 
-model5<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model5)
+res<-residuals(fullmodel2)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
 
-model6<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI + WindSpeed_KMI + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model6)
-
-model7<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI + WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model7)
-
-model8<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI  + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model8)
+AIC(fullmodel2)
 ```
 
 
-**Met interacties | Temperatuur als continue variabele**
 
-Volgende interacties werden toegevoegd met bijhorende verantwoording voor de keuze
-
-
-  - Urbanisatie * Temperatuur   : urban heat island effect?
-  
-  - Urbanisatie * WindSpeed     : Lagere windsnelheden gemeten tussen de gebouwen?
-  
-  - Urbanisatie * Weight_ind    : Meer / minder resources in de stad en dus effect op gewicht van de werksters
-  
-  - Temperatuur * Cloudcoverage : Koudere temperatuur gemeten bij hogere bewolking
-  
-
-
-Tussen model 12 en 13 gebeurt er iets raars.
-
-Urbanisatie en windspeed komen terug naar voor.
+# Regional urbanisation 
 
 ```{r}
-fullmodel3<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*Temperature_KMI + Traject100m*WindSpeed_KMI + Traject100m*Weight_ind + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
+fullmodel3<-lmer(ForagingSpeed ~ Urban_EN + I(WindSpeed_KMI^2) + (1|Individualcode), na.action=na.omit, data=KMIdata)
 summary(fullmodel3)
 
-model9<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*WindSpeed_KMI + Traject100m*Weight_ind + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model9)
+res<-residuals(fullmodel3)
+shapiro.test(res)
+qqnorm(res)
+qqline(res)
 
-model10<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*WindSpeed_KMI + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model10)
-
-model11<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Weight_ind + Traject100m*WindSpeed_KMI + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model11)
-
-model12<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Traject100m*WindSpeed_KMI + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model12)
-
-model13<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + Traject100m*WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model13)
-
-model14<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model14)
-
-model15<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model15)
-
-model16<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model16)
+AIC(fullmodel3)
 ```
 
 
-**Met interacties | Temperatuur als categorische variabele**
 
-Dezelfde interacties als hierboven werden toegevoegd.
-  
+
+
+
+# Backward model Selection
 
 ```{r}
-fullmodel4<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*Temperature_cat + Traject100m*WindSpeed_KMI + Traject100m*Weight_ind + Temperature_cat*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(fullmodel4)
+library(MASS)
+fullmodel<-lmer(ForagingSpeed ~ Traject100m*Temperature_cat + I(WindSpeed_KMI^2)*Wind_flight + Cloudcoverage_KMI + Weight_ind + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(fullmodel)
+stepAIC(fullmodel)
+```
 
-model17<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*Temperature_cat + Traject100m*WindSpeed_KMI + Traject100m*Weight_ind + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model17)
+```{r}
+fullmodel<-lmer(ForagingSpeed ~ Traject100m*Temperature_cat + I(WindSpeed_KMI^2)*Wind_flight + Cloudcoverage_KMI + Weight_ind + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(fullmodel)
 
-model18<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*WindSpeed_KMI + Traject100m*Weight_ind + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model18)
+model1<-lmer(ForagingSpeed ~ Traject100m*Temperature_cat + I(WindSpeed_KMI^2) + Wind_flight + Cloudcoverage_KMI + Weight_ind + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model1)
 
-model19<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Cloudcoverage_KMI + Weight_ind + Wind_flight + Traject100m*WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model19)
+model2<-lmer(ForagingSpeed ~ Traject100m+Temperature_cat + I(WindSpeed_KMI^2) + Wind_flight + Cloudcoverage_KMI + Weight_ind + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model2)
 
-model20<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat  + Weight_ind + Wind_flight + Traject100m*WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model20)
+model3<-lmer(ForagingSpeed ~ Traject100m + I(WindSpeed_KMI^2) + Wind_flight + Cloudcoverage_KMI + Weight_ind + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model3)
 
-model21<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_cat + Weight_ind + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model21)
+model4<-lmer(ForagingSpeed ~ Traject100m + I(WindSpeed_KMI^2) + Wind_flight + Cloudcoverage_KMI + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model4)
 
-model22<-lmer(Flighttime_min ~ Traject100m + Temperature_cat +  Weight_ind + Wind_flight +(1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model22)
+model5<-lmer(ForagingSpeed ~ Traject100m + I(WindSpeed_KMI^2) + Cloudcoverage_KMI + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model5)
 
-model23<-lmer(Flighttime_min ~ Traject100m  + Temperature_cat + Wind_flight + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model23)
+model6<-lmer(ForagingSpeed ~ Traject100m + I(WindSpeed_KMI^2) + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model6)
 
-model24<-lmer(Flighttime_min ~ Traject100m +Temperature_cat+ (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(model24)
+model7<-lmer(ForagingSpeed ~ Traject100m * I(WindSpeed_KMI^2) + (1|Individualcode), na.action=na.omit, data=KMIdata)
+summary(model7)
+
 ```
 
 
-# Probeersels
+
+
+# Update rule of thumb
+
+probeersel om distance als afhankelijke variabele te nemen
+Komt rare dingen uit
+
+
 ```{r}
-probeersel1<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI +  Traject100m*Temperature_KMI + Traject100m*WindSpeed_KMI + Temperature_KMI*Cloudcoverage_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(probeersel1)
+updaterule<-lm(Distance ~ Flighttime_min + Urban_EN + I(WindSpeed_KMI^2), na.action=na.omit, data=KMIdata)
+summary(updaterule)
 
-probeersel2<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI + Cloudcoverage_KMI +  Traject100m*Temperature_KMI + Traject100m*WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(probeersel2)
+updaterule<-lm(Distance ~ Flighttime_min + Urban_EN, na.action=na.omit, data=KMIdata)
+summary(updaterule)
 
-probeersel3<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI +  Traject100m*Temperature_KMI + Traject100m*WindSpeed_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(probeersel3)
-
-probeersel4<-lmer(Flighttime_min ~ Traject100m + WindSpeed_KMI + Temperature_KMI +  Traject100m*Temperature_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(probeersel4)
-
-probeersel5<-lmer(Flighttime_min ~ Traject100m + Temperature_KMI +  Traject100m*Temperature_KMI + (1|Individualcode), offset=Distance, na.action=na.omit, data=KMIdata)
-summary(probeersel5)
+updaterule<-lm(Distance ~ Flighttime_min + Urbanisation_cat, na.action=na.omit, data=KMIdata)
+summary(updaterule)
 ```
-
-
-# AIC check
-
 ```{r}
-library(AICcmodavg)
-models<-list(fullmodel1, model1, model2, model3, model4, model5, model6, model7, model8, fullmodel3, model9, model10, model11, model12, model12, model13, model14, model15, model16, fullmodel4, model17, model18, model19, model20, model21, model22, model23, model24, probeersel1, probeersel2, probeersel3, probeersel4, probeersel5 )
-
-mod.names<-c('fullmodel1', 'model1', 'model2', 'model3', 'model4', 'fullmomdel2', 'model5', 'model6', 'model7', 'model8', 'fullmodel3', 'model9', 'model10', 'model11', 'model12', 'model13', 'model14', 'model15', 'model16', 'fullmodel4', 'model17', 'model18', 'model19', 'model20', 'model21', 'model22', 'model23', 'model24', 'probeersel1', 'probeersel2', 'probeersel3', 'probeersel4', 'probeersel5')
-aictab(cand.set = models, modnames = mod.names)
+updaterule<-lm(Distance ~ Flighttime_min + Urban_EN, na.action=na.omit, data=Eigendata_shortind)
+summary(updaterule)
 ```
 
 
 
 # Multicollinearity check
 
-**PROBLEEM: wanneer ik wil checken voor Baitcode en Individualcode krijg ik foutmelding**
-
-**Hoe kan ik dan een covariantie uitvoeren tussen discrete variabelen?**
 
 ```{r}
 library(ggcorrplot)
 library(car)
 
-datacor<-KMIdata[ , c("Temperature_KMI", "Cloudcoverage_KMI", "WindSpeed_KMI", "Weight_ind", "Traject100m", "NestID")]
+datacor<-KMIdata[ , c("Temperature_KMI", "Cloudcoverage_KMI", "WindSpeed_KMI", "Weight_ind", "Traject100m")]
 source("~/GitHub/vespa_analyses/Input/HighstatLibV10.R") 
 corvif(datacor)
 
 cormat <- round(cor(datacor, use = "pairwise.complete.obs"), 2)
 ggcorrplot(cormat, lab= TRUE, type = "lower", ggtheme = ggplot2::theme_gray,
-   colors = c("#6D9EC1", "white", "#E46726"))
+   colors = c("dodgerblue3", "white", "darkorange2")) + scale_x_discrete(labels = c("Cloud coverage", "Wind speed", "Individual weight", "Urbanisation")) + scale_y_discrete(labels = c("Temperature", "Cloud coverage", "Wind speed", "Individual weight"))
 ```
 

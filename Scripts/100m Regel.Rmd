@@ -38,8 +38,9 @@ nest" voor.
 ```{r echo=FALSE, warning=FALSE}
 ggplot(Eigendata, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=2) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=1.2) + geom_abline(intercept=2.232, slope=5.577e-03, color="darkcyan", linewidth=1.2)  +  ggtitle("Test rule of thumb | All data") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13))  + xlim(0,2100)+ ylim(0,21) + scale_x_continuous(name="Distance (m)", limits=c(0, 1500, 500)) + scale_y_continuous(name="Flight time (min)", limits=c(0,20,5))
 
-ggplot(Eigendata_shortind, aes(x=Distance, y=Flighttime_min)) + geom_point(color="aquamarine3", size=2) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=1.2) + geom_abline(intercept=1.3534083, slope=0.0064593, color="darkcyan", linewidth=1.2)  +  ggtitle("Test rule of thumb | Shortest per individual") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13))  + xlim(0,2100)+ ylim(0,21) + scale_x_continuous(name="Distance (m)", limits=c(0, 1500, 500)) + scale_y_continuous(name="Flight time (min)", limits=c(0,20,5))
+ggplot(Eigendata_shortind, aes(x=Distance, y=Flighttime_min)) + geom_point(color="dodgerblue2", size=2) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=1.2) + geom_abline(intercept=1.3534083, slope=0.0064593, color="dodgerblue4", linewidth=1.2)  +  ggtitle("Test rule of thumb | Shortest per individual") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13))  + xlim(0,2100)+ ylim(0,21) + scale_x_continuous(name="Distance (m)", limits=c(0, 1500, 500)) + scale_y_continuous(name="Flight time (min)", limits=c(0,20,5))
 
+ggplot(Eigendata_shortind, aes(x=Distance, y=Flighttime_min, color=Urban_EN)) + geom_point(size=2) + geom_abline(intercept=0, slope=0.01, color="darkorange2", linewidth=1.2) + geom_abline(intercept=1.3534083, slope=0.0064593, color="dodgerblue4", linewidth=1.2)  +  ggtitle("Test rule of thumb | Shortest per individual") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13))  + xlim(0,2100)+ ylim(0,21) + scale_x_continuous(name="Distance (m)", limits=c(0, 1500, 500)) + scale_y_continuous(name="Flight time (min)", limits=c(0,20,5))
 ```
 
 
@@ -85,7 +86,7 @@ summary(model_dist_ind)
 
 ```{r warning=FALSE}
 Eigendata$Expected_Time<-Eigendata$Distance*0.01     ## Expected vliegtijd berekening (oranje)
-Eigendata$Res<-Eigendata$Flighttime_min - Eigendata$Expected_Time    # Residuals berekening van oranje rechte
+Eigendata$Flight_difference<-Eigendata$Flighttime_min - Eigendata$Expected_Time    # Residuals berekening van oranje rechte
 
 modelOrange<-sum(Eigendata$Res^2, na.rm= TRUE)   ## squared residuals (oranje)
 res<-residuals(model_dist_all)
@@ -100,11 +101,22 @@ pf(Fstat, dfOrange, dfGreen, lower.tail = FALSE)
 ```
 
 
+```{r}
+ggplot(Eigendata, aes(x=Distance, y=Flight_difference))  + geom_abline(intercept=0, slope=0, color="black") + geom_point(color="dodgerblue2", size=2) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="dodgerblue4") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=15), axis.text=element_text(size=13)) + scale_x_continuous(name="Distance (m)", limits=c(0, 1300, 250))+ scale_y_continuous(name="Observed - Expected flight time (min)", limits=c(-5,14,5))
+```
+
+
+```{r}
+model1<-lm(Flight_difference ~ Distance, data=Eigendata)
+summary(model1)
+```
+
+
 **Shortest per individual** 
 
 ```{r warning=FALSE}
 Eigendata_shortind$Expected_Time<-Eigendata_shortind$Distance*0.01     ## Expected vliegtijd berekening (oranje)
-Eigendata_shortind$Res<-Eigendata_shortind$Flighttime_min - Eigendata_shortind$Expected_Time    # Residuals berekening van oranje rechte
+Eigendata_shortind$Flight_difference<-Eigendata_shortind$Flighttime_min - Eigendata_shortind$Expected_Time    # Residuals berekening van oranje rechte
 
 modelOrange<-sum(Eigendata_shortind$Res^2, na.rm= TRUE)   ## squared residuals (oranje)
 res<-residuals(model_dist_ind)
@@ -118,8 +130,14 @@ Fstat<-((modelOrange-modelGreen)/(dfOrange-dfGreen))/(modelGreen/dfGreen)    # F
 pf(Fstat, dfOrange, dfGreen, lower.tail = FALSE)
 ```
 
+```{r}
+ggplot(Eigendata_shortind, aes(x=Distance, y=Flight_difference))  + geom_abline(intercept=0, slope=0, color="black") + geom_point(color="dodgerblue2", size=2) + geom_smooth(method="lm", formula =y ~ x, se=TRUE, fullrange=FALSE, level=0.95, color="dodgerblue4") + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=13), axis.text=element_text(size=13)) + scale_x_continuous(name="Distance (m)", limits=c(0, 1300, 250))+ scale_y_continuous(name="Observed - Expected flight time (min)", limits=c(-5,8,5))
+```
 
-
+```{r}
+model2<-lm(Flight_difference ~ Distance, data=Eigendata_shortind)
+summary(model2)
+```
 
 
 
