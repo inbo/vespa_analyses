@@ -155,7 +155,7 @@ anova(model_temp_urbL, model_temp_urbL_int)
 
 ```{r}
 # zonder interactie
-model_temp_urbR<-lmer(ForagingSpeed ~ Temperature_KMI + Urban_EN + (1|Individualcode), na.action=na.omit, data=KMIdata)
+model_temp_urbR<-lmer(ForagingSpeed ~ Temperature_KMI + Urbanisation + (1|Individualcode), na.action=na.omit, data=KMIdata)
 summary(model_temp_urbR)
 anova(model_temp_urbR)
 
@@ -201,16 +201,17 @@ ggpredict(model_temp_urbL_int, c("Temperature_KMI", "Urbanisation_cat")) %>%
   scale_fill_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), name="fill")+
   labs(colour="Local urbanisation", title="Temperature effect per local urbanisation level | interaction included")
 
-ggpredict(model_temp_urbR, c("Temperature_KMI", "Urban_EN")) %>% 
-  plot(add.data=T, limit.range=T) + scale_x_continuous(name="Temperature (°C)") + scale_y_continuous(name="Foraging speed   (m/s)") +
-  scale_color_manual(values=c('darkorange','seagreen3', 'dodgerblue2'))+
-  scale_fill_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), name="fill")+
-  labs(colour="Regional urbanisation", title="Temperature effect per regional urbanisation level | interaction excluded")
+ggpredict(model_temp_urbR, c("Temperature_KMI", "Urbanisation")) %>% 
+  plot(add.data=T, limit.range=T) + scale_x_continuous(name="Temperatuur (°C)") + scale_y_continuous(name="Vliegsnelheid   (m/s)") +
+  scale_color_manual(values=c('seagreen3','darkorange', 'dodgerblue2'))+
+  scale_fill_manual(values=c('seagreen3','darkorange', 'dodgerblue2'), name="fill")+
+  labs(colour="Regionale urbanisatie", title="Temperatuur effect per regionaal urbanisatielevel | interactie excl.")
 
-ggpredict(model_temp_urbR_int, c("Temperature_KMI", "Urban_EN")) %>% 
+plotCOLOSS<-ggpredict(model_temp_urbR_int, c("Temperature_KMI", "Urban_EN")) %>% 
   plot(add.data=T, limit.range=T) + scale_x_continuous(name="Temperature (°C)") + scale_y_continuous(name="Foraging speed   (m/s)") +  scale_color_manual(values=c('darkorange','seagreen3', 'dodgerblue2'))+
   scale_fill_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), name="fill")+
   labs(colour="Regional urbanisation", title="Temperature effect per regional urbanisation level | interaction included")
+ggsave(filename='plotCOLOSS.png', dpi=1200, width=6, height=3)
 ```
 
 
@@ -324,9 +325,9 @@ qqline(res)
 
 ```{r}
 ggpredict(model_wind1_all, c("WindSpeed_KMI", "Wind_flight")) %>% 
-  plot(add.data=T) + scale_x_continuous(name="Wind speed (m/s)") + scale_y_continuous(name="Foraging speed   (m/s)", limits=c(0,7,5)) +  scale_color_manual(values=c('darkorange','seagreen3', 'dodgerblue2'))+
-  scale_fill_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), name="fill")+
-  labs(colour="Wind direction", title="Wind speed effect per wind direction")
+  plot(add.data=T) + scale_x_continuous(name="Windsnelheid (m/s)") + scale_y_continuous(name="Vliegsnelheid (m/s)", limits=c(0,7,5)) + scale_color_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), labels=c('Loodrechte wind', 'Meewind', 'Tegenwind'))+
+  scale_fill_manual(values=c('darkorange','seagreen3', 'dodgerblue2'), name="fill") +
+  labs(colour="Windrichting", title="Wind speed effect per wind direction")
 
 ```
 
@@ -363,6 +364,13 @@ qqline(res)
 
 ```{r warning=FALSE}
 ggplot(KMIdata, aes(x=Weight_ind, y=ForagingSpeed)) + geom_point(color="dodgerblue2") + geom_abline(intercept=2.5517, slope=-1.0014, linewidth=1.2, color="dodgerblue4") + theme(plot.title = element_text(hjust = 0.5, size=10)) + theme(plot.title = element_text(hjust = 0.5, size=17), axis.title=element_text(size=17), axis.text=element_text(size=13)) + scale_x_continuous(name="Individual weight (g)", limits=c(0.2,0.45)) + scale_y_continuous(name="Foraging speed (m/s)", limits=c(0,5)) 
+
+KMIdata$Urban_EN <- as.factor(KMIdata$Urban_EN)
+ggplot(KMIdata, aes(x=Urban_EN, y=Weight_ind)) + geom_boxplot()
+ggplot(KMIdata, aes(x=Urban_EN, y=Weight_ind)) + geom_point()
+
+test<-lm(Weight_ind ~ Urban_EN, data=KMIdata)
+summary(test)
 ```
 
 
@@ -592,11 +600,90 @@ summary(updaterule)
 updaterule<-lm(Distance ~ Flighttime_min + Urban_EN, na.action=na.omit, data=KMIdata)
 summary(updaterule)
 ```
+
+
+
+
 ```{r}
-updaterule<-lm(Distance ~ Flighttime_min + Urban_EN, na.action=na.omit, data=Eigendata_shortind)
+updaterule <- lm(Distance ~ Flighttime_min + Urbanisation, na.action = na.omit, data = Eigendata_shortind)
 summary(updaterule)
+
+newdata <- data.frame(
+  Flighttime_min = rep(seq(1, 8, 1), times = 3),  # Repeat each value 3 times
+  Urbanisation = rep(c("Landelijk", "Randstedelijk", "Verstedelijkt"), each = 8)
+)
+
+# Predict values for the newdata
+predicted_values <- predict(updaterule, newdata = newdata, interval = 'confidence')
+
+# Create a new data frame combining the input variables and predicted values
+output_table <- data.frame(
+  Flighttime_min = newdata$Flighttime_min,
+  Urbanisation = newdata$Urbanisation,
+  Predicted_Distance = predicted_values[, "fit"],
+  Lower_CI = predicted_values[, "lwr"],
+  Upper_CI = predicted_values[, "upr"]
+)
+output_table
+
+
+ggpredict(updaterule, c("Flighttime_min", "Urbanisation")) %>% 
+  plot(add.data=T) + scale_x_continuous(name="Flight time (min)") + 
+  scale_y_continuous(name="Distance (m)", limits=c(0,1300)) + 
+  scale_color_manual(values=c('seagreen3','darkorange', 'dodgerblue2'),
+                     breaks = c("Landelijk", "Randstedelijk", "Verstedelijkt"),
+                     labels = c("Landelijk", "Randstedelijk", "Verstedelijkt")) +
+  scale_fill_manual(values=c('seagreen3','darkorange', 'dodgerblue2'),
+                    breaks = c("Landelijk", "Randstedelijk", "Verstedelijkt"),
+                    labels = c("Landelijk", "Randstedelijk", "Verstedelijkt")) +
+  labs(colour="Regionale urbanisatie", title="Wind speed effect per wind direction")
+
+ggplot(Eigendata_shortind, aes(x=Flighttime_min, y=Distance)) + geom_point(color="darkgrey", size=2) +
+  geom_abline(intercept=106.724, slope=93.744      , color="darkorange", linewidth=1) + 
+  geom_abline(intercept=-17.046, slope=93.744, color="seagreen3", linewidth=1) + 
+  geom_abline(intercept=-26.909, slope=93.744, color="dodgerblue2", linewidth=1) +
+  geom_abline(intercept=0, slope=100, color="black", linewidth=1.3) + 
+  ylim(0,2100)+ xlim(0,11) + scale_y_continuous(name="Distance (m)", limits=c(0, 1300, 500)) + scale_x_continuous(name="Flight time (min)", limits=c(0,11,5))
+
+ggplot(Eigendata_shortind, aes(x=Flighttime_min, y=Distance)) + 
+  geom_point(color="darkgrey", size=2, aes(color="Data")) +
+  geom_abline(aes(intercept=65.093, slope=103.036, color="Landelijk"), linewidth=1) + 
+  geom_abline(aes(intercept=27.412, slope=84.268, color="Randstedelijk"), linewidth=1) + 
+  geom_abline(aes(intercept=-52.122, slope=106.738, color="Verstedelijkt"), linewidth=1) +
+  geom_abline(aes(intercept=0, slope=100, color="Vuistregel"), linewidth=1.3) + 
+  scale_color_manual(values=c(Landelijk="darkorange", Randstedelijk="seagreen3", Verstedelijkt="dodgerblue2", Vuistregel="black"), 
+                     name="Legende", labels=c("Landelijk", "Randstedelijk", "Verstedelijkt", "Huidige vuistregel")) + 
+  ylim(0, 2100) + xlim(0, 11) + 
+  scale_y_continuous(name="Afstand (m)", breaks=seq(0, 1300, by=100)) + 
+  scale_x_continuous(name="Vliegtijd (min)", breaks=seq(0, 10, by=1)) + 
+  theme(legend.position=c(0.90, 0.16)) + guides(
+    color = guide_legend(override.aes = list(linetype = c(1, 1, 1, 1), shape = c(NA, NA, NA, NA))))
+
 ```
 
+#Grafiek COLOSS
+```{r}
+GrafiekCOLOSS2<-ggpredict(updaterule, c("Flighttime_min", "Urbanisation")) %>% 
+  plot(add.data=T) + scale_x_continuous(name="Flight time (min)") + 
+  scale_y_continuous(name="Distance (m)", limits=c(0,1300)) + 
+  scale_color_manual(values=c('seagreen3','darkorange', 'dodgerblue2'),
+                     breaks = c("Landelijk", "Randstedelijk", "Verstedelijkt"),
+                     labels = c("Rural", "Suburban", "Urban")) +
+  scale_fill_manual(values=c('seagreen3','darkorange', 'dodgerblue2'),
+                    breaks = c("Landelijk", "Randstedelijk", "Verstedelijkt"),
+                    labels = c("Rural", "Suburban", "Urban")) +
+  labs(colour="Regional urbanisation")+
+    theme(
+    axis.title = element_text(size = 250, ),
+    axis.text = element_text(size = 240, ),
+    text=element_text(family = "Cooper Hewitt"),
+    legend.title = element_text(size = 240),       
+    legend.text = element_text(size = 240) 
+   )
+GrafiekCOLOSS2
+ggsave(GrafiekCOLOSS2, filename = 'GrafiekCOLOSS2.png', dpi = 1200, type = 'cairo',
+       width = 10, height = 5, units = 'in')
+```
 
 
 
